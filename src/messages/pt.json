@@ -1,0 +1,137 @@
+{
+  "Sidebar": {
+    "dashboard": "Painel",
+    "diary": "Diário Alimentar",
+    "foods": "Alimentos",
+    "profile": "Perfil",
+    "signOut": "Sair"
+  },
+  "Landing": {
+    "title": "InsightEats",
+    "description": "Assuma o controle da sua nutrição com rastreamento inteligente. Registre refeições, acompanhe seus macros e alcance seus objetivos com facilidade.",
+    "signIn": "Entrar",
+    "getStarted": "Começar",
+    "goToDashboard": "Ir para o Painel",
+    "copyright": "© {year} InsightEats. Todos os direitos reservados."
+  },
+  "Dashboard": {
+    "title": "Painel",
+    "subtitle": "Acompanhe seu progresso e mantenha a consistência.",
+    "weightEvolution": "Evolução do Peso",
+    "last30Days": "Últimos 30 Dias",
+    "logWeight": "Registrar Peso",
+    "smartFoodSearch": "Busca inteligente",
+    "quickTip": "Dica Rápida",
+    "tipContent": "Consistência é a chave! Tente registrar seu peso no mesmo horário todos os dias, de preferência pela manhã.",
+    "loadingChart": "Carregando gráfico...",
+    "noWeightData": "Sem dados de peso ainda. Registre seu peso para ver o gráfico!",
+    "toasts": {
+      "invalidWeight": "Por favor insira um peso válido",
+      "weightLogged": "Peso registrado e metas atualizadas",
+      "weightError": "Falha ao registrar peso. Tente novamente."
+    },
+    "weightInputLabel": "Peso de Hoje (kg)",
+    "weightInputPlaceholder": "ex: 70.5",
+    "saving": "Salvando...",
+    "logAction": "Registrar"
+  },
+  "Diary": {
+    "title": "Diário Alimentar",
+    "subtitle": "Busque alimentos, registre suas refeições e acompanhe seus macros diários.",
+    "addToDiary": "Adicionar ao diário"
+  },
+  "Foods": {
+    "title": "Banco de alimentos",
+    "subtitle": "Gerencie sua biblioteca de alimentos. Adicione novos itens usando a busca inteligente abaixo.",
+    "addNewFood": "Adicionar Novo Alimento",
+    "searchDescription": "Busque alimentos para adicioná-los à sua biblioteca. Verificaremos nosso banco de dados local e fontes externas (USDA, Open Food Facts).",
+    "yourLibrary": "Sua Biblioteca",
+    "filterLibrary": "Filtrar biblioteca...",
+    "headers": {
+      "name": "Nome",
+      "calories": "Calorias",
+      "protein": "Proteína",
+      "carbs": "Carboidratos",
+      "fat": "Gordura"
+    },
+    "emptyLibrary": "Nenhum alimento na sua biblioteca ainda. Use a busca acima para adicionar alguns!"
+  },
+  "Profile": {
+    "title": "Perfil e Metas",
+    "subtitle": "Defina suas informações básicas para que o InsightEats possa calcular suas metas diárias de calorias e macros.",
+    "user_info": "{name} · {email}",
+    "form": {
+      "age": "Idade",
+      "weight": "Peso (kg)",
+      "height": "Altura (cm)",
+      "sex": "Sexo",
+      "male": "Masculino",
+      "female": "Feminino",
+      "activityLevel": "Nível de atividade",
+      "activityOptions": {
+        "sedentary": "Sedentário (pouco ou nenhum exercício)",
+        "light": "Leve (1–3 dias/semana)",
+        "moderate": "Moderado (3–5 dias/semana)",
+        "active": "Ativo (6–7 dias/semana)",
+        "very_active": "Muito ativo (trabalho físico/treino intenso)"
+      },
+      "saveGoals": "Salvar metas",
+      "saving": "Salvando..."
+    },
+    "dailyTargets": "Metas diárias",
+    "fillDetails": "Preencha seus detalhes e salve para ver suas metas diárias personalizadas.",
+    "toasts": {
+      "invalidAge": "Por favor, insira uma idade válida",
+      "invalidWeight": "Por favor, insira um peso válido",
+      "invalidHeight": "Por favor, insira uma altura válida",
+      "success": "Metas atualizadas",
+      "error": "Falha ao atualizar metas"
+    }
+  },
+  "FoodSearch": {
+    "placeholder": "Buscar alimentos...",
+    "externalResults": "Resultados Externos",
+    "searchingExternal": "Buscando em bancos de dados externos...",
+    "noResults": "Nenhum alimento encontrado localmente ou em bancos de dados externos.",
+    "addFood": "Adicionar alimento",
+    "quantityGrams": "Quantidade (gramas)",
+    "mealRecorded": "Refeição registrada com sucesso!",
+    "alreadyInDb": "Este alimento já está no seu banco de dados.",
+    "addedToDb": "Alimento adicionado ao banco de dados!",
+    "cancel": "Cancelar",
+    "addToDiary": "Adicionar ao diário"
+  },
+  "WeightChart": {
+    "loading": "Carregando gráfico...",
+    "noData": "Sem dados de peso ainda. Registre seu peso para ver o gráfico!"
+  },
+  "WeightInput": {
+    "label": "Peso de Hoje (kg)",
+    "placeholder": "ex: 70.5",
+    "log": "Registrar",
+    "saving": "Salvando...",
+    "toasts": {
+      "invalid": "Por favor, insira um peso válido",
+      "success": "Peso registrado e metas atualizadas",
+      "error": "Falha ao registrar peso. Por favor, tente novamente."
+    }
+  },
+  "DailyProgress": {
+    "macros": {
+      "calories": "Calorias",
+      "protein": "Proteína",
+      "carbs": "Carboidratos",
+      "fats": "Gorduras",
+      "fiber": "Fibras"
+    },
+    "today": "Hoje",
+    "date": "Data",
+    "previous": "Anterior",
+    "next": "Próximo",
+    "dailyProgress": "Progresso Diário",
+    "basedOnTargets": "Com base em suas metas diárias personalizadas.",
+    "setGoals": "Defina suas metas na página Perfil para desbloquear todos os insights.",
+    "of": "de",
+    "target": "Meta"
+  }
+}

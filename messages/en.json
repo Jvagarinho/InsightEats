@@ -1,0 +1,12 @@
+{
+  "Sidebar": {
+    "dashboard": "Dashboard",
+    "diary": "Diary",
+    "foods": "Foods",
+    "profile": "Profile",
+    "signOut": "Sign Out"
+  },
+  "Common": {
+    "loading": "Loading..."
+  }
+}

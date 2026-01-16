@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F9FAFB;
+  --foreground: #171717;
+  
+  /* Health-focused palette */
+  --soft-green: #2D5A27;
+  --soft-green-hover: #23471f;
+  --light-gray: #F9FAFB;
+  --white: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  --color-soft-green: var(--soft-green);
+  --color-soft-green-hover: var(--soft-green-hover);
+  --color-light-gray: var(--light-gray);
+}
+
+body {
+  background: var(--light-gray); /* Using light gray as app background base */
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}

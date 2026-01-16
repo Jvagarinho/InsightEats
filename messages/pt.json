@@ -1,0 +1,12 @@
+{
+  "Sidebar": {
+    "dashboard": "Painel",
+    "diary": "Diário",
+    "foods": "Alimentos",
+    "profile": "Perfil",
+    "signOut": "Sair"
+  },
+  "Common": {
+    "loading": "Carregando..."
+  }
+}

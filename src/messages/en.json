@@ -1,0 +1,137 @@
+{
+  "Sidebar": {
+    "dashboard": "Dashboard",
+    "diary": "Food Diary",
+    "foods": "Foods",
+    "profile": "Profile",
+    "signOut": "Sign Out"
+  },
+  "Landing": {
+    "title": "InsightEats",
+    "description": "Take control of your nutrition with intelligent tracking. Log meals, monitor your macros, and achieve your goals with ease.",
+    "signIn": "Sign In",
+    "getStarted": "Get Started",
+    "goToDashboard": "Go to Dashboard",
+    "copyright": "© {year} InsightEats. All rights reserved."
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Track your progress and stay consistent.",
+    "weightEvolution": "Weight Evolution",
+    "last30Days": "Last 30 Days",
+    "logWeight": "Log Weight",
+    "smartFoodSearch": "Smart Food Search",
+    "quickTip": "Quick Tip",
+    "tipContent": "Consistency is key! Try to log your weight at the same time each day, preferably in the morning.",
+    "loadingChart": "Loading chart...",
+    "noWeightData": "No weight data yet. Log your weight to see the chart!",
+    "toasts": {
+      "invalidWeight": "Please enter a valid weight",
+      "weightLogged": "Weight logged and goals updated",
+      "weightError": "Failed to log weight. Please try again."
+    },
+    "weightInputLabel": "Today's Weight (kg)",
+    "weightInputPlaceholder": "e.g. 70.5",
+    "saving": "Saving...",
+    "logAction": "Log"
+  },
+  "Diary": {
+    "title": "Food Diary",
+    "subtitle": "Search foods, log your meals, and track your daily macros.",
+    "addToDiary": "Add to your diary"
+  },
+  "Foods": {
+    "title": "Food Database",
+    "subtitle": "Manage your personal food library. Add new foods using the Smart Search below.",
+    "addNewFood": "Add New Food",
+    "searchDescription": "Search for foods to add them to your library. We'll check our local database and external sources (USDA, Open Food Facts).",
+    "yourLibrary": "Your Library",
+    "filterLibrary": "Filter library...",
+    "headers": {
+      "name": "Name",
+      "calories": "Calories",
+      "protein": "Protein",
+      "carbs": "Carbs",
+      "fat": "Fat"
+    },
+    "emptyLibrary": "No foods in your library yet. Use the search above to add some!"
+  },
+  "Profile": {
+    "title": "Profile & Goals",
+    "subtitle": "Set your basic information so InsightEats can calculate your daily calorie and macro targets.",
+    "user_info": "{name} · {email}",
+    "form": {
+      "age": "Age",
+      "weight": "Weight (kg)",
+      "height": "Height (cm)",
+      "sex": "Sex",
+      "male": "Male",
+      "female": "Female",
+      "activityLevel": "Activity level",
+      "activityOptions": {
+        "sedentary": "Sedentary (little or no exercise)",
+        "light": "Light (1–3 days/week)",
+        "moderate": "Moderate (3–5 days/week)",
+        "active": "Active (6–7 days/week)",
+        "very_active": "Very active (physical job/training)"
+      },
+      "saveGoals": "Save goals",
+      "saving": "Saving..."
+    },
+    "dailyTargets": "Daily targets",
+    "fillDetails": "Fill out your details and save to see your personalized daily targets.",
+    "toasts": {
+      "invalidAge": "Please enter a valid age",
+      "invalidWeight": "Please enter a valid weight",
+      "invalidHeight": "Please enter a valid height",
+      "success": "Goals updated",
+      "error": "Failed to update goals"
+    }
+  },
+  "FoodSearch": {
+    "placeholder": "Search foods...",
+    "externalResults": "External Results",
+    "searchingExternal": "Searching external databases...",
+    "noResults": "No foods found locally or in external databases.",
+    "addFood": "Add food",
+    "quantityGrams": "Quantity (grams)",
+    "mealRecorded": "Meal recorded successfully!",
+    "alreadyInDb": "This food is already in your database.",
+    "addedToDb": "Food added to database!",
+    "cancel": "Cancel",
+    "addToDiary": "Add to diary"
+  },
+  "WeightChart": {
+    "loading": "Loading chart...",
+    "noData": "No weight data yet. Log your weight to see the chart!"
+  },
+  "WeightInput": {
+    "label": "Today's Weight (kg)",
+    "placeholder": "e.g. 70.5",
+    "log": "Log",
+    "saving": "Saving...",
+    "toasts": {
+      "invalid": "Please enter a valid weight",
+      "success": "Weight logged and goals updated",
+      "error": "Failed to log weight. Please try again."
+    }
+  },
+  "DailyProgress": {
+    "macros": {
+      "calories": "Calories",
+      "protein": "Protein",
+      "carbs": "Carbs",
+      "fats": "Fats",
+      "fiber": "Fiber"
+    },
+    "today": "Today",
+    "date": "Date",
+    "previous": "Previous",
+    "next": "Next",
+    "dailyProgress": "Daily Progress",
+    "basedOnTargets": "Based on your personalized daily targets.",
+    "setGoals": "Set your goals in the Profile page to unlock full insights.",
+    "of": "of",
+    "target": "Target"
+  }
+}
