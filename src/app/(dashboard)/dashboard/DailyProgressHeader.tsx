@@ -113,23 +113,24 @@ export function DailyProgressHeader() {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <Flame className="text-soft-green mb-1" />
-              <div className="text-xs text-gray-500">{t("DailyProgress.macros.calories")}</div>
-              <div className="text-lg font-bold text-gray-800">
-                {Math.round(caloriesConsumed)}
-              </div>
-              <div className="text-xs text-gray-400">
-                {t("DailyProgress.of")} {caloriesGoal > 0 ? Math.round(caloriesGoal) : "--"} kcal
+              <div className="text-3xl font-bold text-gray-800">
+                {Math.round(caloriesPercent)}%
               </div>
             </div>
           </div>
 
           <div>
-            <div className="text-sm font-medium text-gray-500">{t("DailyProgress.dailyProgress")}</div>
-            <div className="mt-1 text-2xl font-bold text-gray-800">
-              {Math.round(caloriesPercent)}%
+            <div className="flex items-center gap-2 mb-1">
+              <Flame className="text-soft-green w-5 h-5" />
+              <div className="text-sm font-medium text-gray-500">{t("DailyProgress.macros.calories")}</div>
             </div>
-            <div className="mt-2 text-sm text-gray-500">
+            <div className="text-3xl font-bold text-gray-800">
+              {Math.round(caloriesConsumed)}{" "}
+              <span className="text-lg text-gray-400 font-normal">
+                / {caloriesGoal > 0 ? Math.round(caloriesGoal) : "--"} kcal
+              </span>
+            </div>
+            <div className="mt-1 text-sm text-gray-500">
               {goals
                 ? t("DailyProgress.basedOnTargets")
                 : t("DailyProgress.setGoals")}
