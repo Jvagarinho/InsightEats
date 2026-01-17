@@ -104,9 +104,9 @@ export const getHistory = query({
 
     const history = await ctx.db
       .query("weight_logs")
-      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .withIndex("by_user_date", (q) => q.eq("userId", user._id))
       .order("desc")
-      .take(30);
+      .take(365);
 
     return history.reverse();
   },
