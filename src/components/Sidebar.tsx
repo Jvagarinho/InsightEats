@@ -2,13 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  BookOpen,
-  Utensils,
-  User,
-  LogOut,
-} from "lucide-react";
+import { LayoutDashboard, BookOpen, Utensils, User, LogOut, Info } from "lucide-react";
 import { SignOutButton } from "@clerk/nextjs";
 import clsx from "clsx";
 import { useLanguage } from "./LanguageProvider";
@@ -18,6 +12,7 @@ const navItems = [
   { href: "/diary", labelKey: "Sidebar.diary", icon: BookOpen },
   { href: "/foods", labelKey: "Sidebar.foods", icon: Utensils },
   { href: "/profile", labelKey: "Sidebar.profile", icon: User },
+  { href: "/about", labelKey: "Sidebar.about", icon: Info },
 ];
 
 export function Sidebar() {
