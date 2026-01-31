@@ -28,8 +28,8 @@ async function fetchOpenFoodFacts(term: string): Promise<ExternalFood[]> {
     const products = Array.isArray(data.products) ? data.products : [];
 
     return products
-      .map((product: any) => {
-        const nutriments = product.nutriments || {};
+      .map((product: Record<string, unknown>) => {
+        const nutriments = (product.nutriments as Record<string, unknown>) || {};
         const rawEnergyKcal100 = nutriments["energy-kcal_100g"];
         const rawEnergyKcal = nutriments["energy-kcal"];
         const rawEnergy100 = nutriments["energy_100g"];
@@ -43,9 +43,9 @@ async function fetchOpenFoodFacts(term: string): Promise<ExternalFood[]> {
           calories = rawEnergy100 / 4.184;
         }
 
-        const protein = nutriments.proteins_100g;
-        const carbs = nutriments.carbohydrates_100g;
-        const fat = nutriments.fat_100g;
+        const protein = nutriments.proteins_100g as number | undefined;
+        const carbs = nutriments.carbohydrates_100g as number | undefined;
+        const fat = nutriments.fat_100g as number | undefined;
 
         if (
           !product.product_name ||
@@ -99,12 +99,12 @@ async function fetchUSDA(term: string): Promise<ExternalFood[]> {
     const foods = Array.isArray(data.foods) ? data.foods : [];
 
     return foods
-      .map((food: any) => {
-        const nutrients = food.foodNutrients || [];
-        
+      .map((food: Record<string, unknown>) => {
+        const nutrients = (food.foodNutrients as Array<Record<string, unknown>>) || [];
+
         const getNutrient = (ids: number | number[]) => {
           const idArray = Array.isArray(ids) ? ids : [ids];
-          return nutrients.find((n: any) => idArray.includes(n.nutrientId))?.value;
+          return nutrients.find((n) => idArray.includes(n.nutrientId as number))?.value;
         };
 
         // USDA Nutrient IDs:
@@ -144,8 +144,7 @@ async function fetchUSDA(term: string): Promise<ExternalFood[]> {
         };
       })
       .filter(Boolean);
-  } catch (error) {
-    // console.error("USDA fetch error:", error); // Quiet fail on timeout
+  } catch {
     return [];
   }
 }

@@ -2,6 +2,7 @@
 
 import { FoodSearch } from "./FoodSearch";
 import { DiaryDashboard } from "./DiaryDashboard";
+import { DiaryList } from "./DiaryList";
 import { useLanguage } from "@/components/LanguageProvider";
 
 export default function DiaryPage() {
@@ -21,6 +22,11 @@ export default function DiaryPage() {
       <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">{t("Diary.addToDiary")}</h3>
         <FoodSearch />
+      </div>
+
+      <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">{t("Diary.todayLog")}</h3>
+        <DiaryList />
       </div>
     </div>
   );

@@ -5,6 +5,8 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/LanguageProvider";
+import { weightInputSchema } from "@/lib/validations";
+import { z } from "zod";
 
 export function WeightInput() {
   const { t } = useLanguage();
@@ -15,21 +17,22 @@ export function WeightInput() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const value = parseFloat(weight);
-    
-    if (!value || value <= 0 || value > 500) {
-      toast.error(t("Dashboard.toasts.invalidWeight"));
-      return;
-    }
 
-    setIsSubmitting(true);
     try {
-      await logWeight({ weight: value });
+      const validatedWeight = weightInputSchema.parse(weight);
+
+      setIsSubmitting(true);
+      await logWeight({ weight: validatedWeight });
       toast.success(t("Dashboard.toasts.weightLogged"));
       setWeight("");
     } catch (error) {
-      toast.error(t("Dashboard.toasts.weightError"));
-      console.error(error);
+      if (error instanceof z.ZodError) {
+        const firstError = error.issues[0];
+        toast.error(firstError.message);
+      } else {
+        toast.error(t("Dashboard.toasts.weightError"));
+        console.error(error);
+      }
     } finally {
       setIsSubmitting(false);
     }

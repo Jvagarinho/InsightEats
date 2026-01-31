@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/components/LanguageProvider";
+import { ArrowLeft } from "lucide-react";
 
 export default function AboutPage() {
   const { locale } = useLanguage();
@@ -18,9 +19,10 @@ export default function AboutPage() {
           </h1>
           <Link
             href="/dashboard"
-            className="px-4 py-2 rounded-full border border-soft-green text-soft-green text-sm font-semibold hover:bg-soft-green hover:text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-soft-green text-soft-green text-sm font-semibold hover:bg-soft-green hover:text-white transition-colors"
           >
-            {isPortuguese ? "Voltar para o Painel" : "Back to Dashboard"}
+            <ArrowLeft size={16} />
+            {isPortuguese ? "Voltar à App" : "Back to App"}
           </Link>
         </div>
 
@@ -56,13 +58,13 @@ export default function AboutPage() {
             <>
               <p className="text-gray-600 mb-3">
                 Iterio Tech is a cutting-edge software development initiative dedicated
-                to bridging the gap between complex data and daily human experience. We
+                to bridging gap between complex data and daily human experience. We
                 specialize in crafting intuitive, high-performance digital solutions
                 that empower users to take control of their personal growth and
                 well-being.
               </p>
               <p className="text-gray-600 mb-3">
-                At the core of our philosophy is the belief that technology should be a
+                At core of our philosophy is the belief that technology should be a
                 quiet enabler—providing clarity without complexity. With projects like
                 InsightEats, we leverage modern full-stack architectures to transform
                 nutritional tracking into a seamless, insightful journey.
@@ -120,12 +122,16 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-between items-center">
+          <p className="text-gray-400 text-sm">
+            © {new Date().getFullYear()} Iterio Tech
+          </p>
           <Link
             href="/dashboard"
-            className="px-6 py-2 rounded-full bg-soft-green text-white text-sm font-semibold hover:bg-soft-green-hover transition-colors shadow-md"
+            className="flex items-center gap-2 px-6 py-2 rounded-full bg-soft-green text-white text-sm font-semibold hover:bg-soft-green-hover transition-colors shadow-md"
           >
-            {isPortuguese ? "Voltar para o Painel" : "Back to Dashboard"}
+            {isPortuguese ? "Voltar à App" : "Back to App"}
+            <ArrowLeft size={16} className="rotate-180" />
           </Link>
         </div>
       </div>

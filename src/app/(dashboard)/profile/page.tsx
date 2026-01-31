@@ -6,9 +6,9 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/LanguageProvider";
-
-type Sex = "male" | "female";
-type ActivityLevel = "sedentary" | "light" | "moderate" | "active" | "very_active";
+import { Sex, ActivityLevel, type ProfileForm } from "@/types";
+import { profileFormSchema } from "@/lib/validations";
+import { z } from "zod";
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -36,41 +36,36 @@ export default function ProfilePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const ageValue = parseInt(age, 10);
-    const weightValue = parseFloat(weightKg);
-    const heightValue = parseFloat(heightCm);
+    const formData: ProfileForm = {
+      age,
+      weightKg,
+      heightCm,
+      sex,
+      activityLevel,
+    };
 
-    if (!ageValue || ageValue < 10 || ageValue > 100) {
-      toast.error(t("Profile.toasts.invalidAge"));
-      return;
-    }
-
-    if (!weightValue || weightValue <= 0 || weightValue > 500) {
-      toast.error(t("Profile.toasts.invalidWeight"));
-      return;
-    }
-
-    if (!heightValue || heightValue <= 0 || heightValue > 260) {
-      toast.error(t("Profile.toasts.invalidHeight"));
-      return;
-    }
-
-    setIsSubmitting(true);
     try {
+      const validatedData = profileFormSchema.parse(formData);
+
+      setIsSubmitting(true);
       const result = await calculateAndSaveGoals({
-        age: ageValue,
-        weightKg: weightValue,
-        heightCm: heightValue,
-        sex,
-        activityLevel,
+        age: validatedData.age,
+        weightKg: validatedData.weightKg,
+        heightCm: validatedData.heightCm,
+        sex: validatedData.sex,
+        activityLevel: validatedData.activityLevel,
       });
 
       toast.success(t("Profile.toasts.success"));
-
       return result;
-    } catch (error) {
-      toast.error(t("Profile.toasts.error"));
-      console.error(error);
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
+        const firstError = error.issues[0];
+        toast.error(firstError.message);
+      } else {
+        toast.error(t("Profile.toasts.error"));
+        console.error(error);
+      }
     } finally {
       setIsSubmitting(false);
     }

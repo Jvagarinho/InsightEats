@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Utensils, User, Info } from "lucide-react";
+import { LayoutDashboard, BookOpen, Utensils, User, Info, Zap } from "lucide-react";
 import clsx from "clsx";
 import { useLanguage } from "./LanguageProvider";
 
@@ -11,6 +11,7 @@ const navItems = [
   { href: "/diary", labelKey: "Sidebar.diary", icon: BookOpen },
   { href: "/foods", labelKey: "Sidebar.foods", icon: Utensils },
   { href: "/profile", labelKey: "Sidebar.profile", icon: User },
+  { href: "/features", labelKey: "Sidebar.features", icon: Zap },
   { href: "/about", labelKey: "Sidebar.about", icon: Info },
 ];
 

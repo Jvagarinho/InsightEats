@@ -128,6 +128,44 @@ export const summaryForDate = query({
   },
 });
 
+export const getTodayLogs = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", identity.subject))
+      .unique();
+
+    if (!user) return [];
+
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10);
+
+    const logs = await ctx.db
+      .query("logs")
+      .withIndex("by_user_date", (q) =>
+        q.eq("userId", user._id).eq("date", dateStr)
+      )
+      .order("desc")
+      .collect();
+
+    const enrichedLogs = await Promise.all(
+      logs.map(async (log) => {
+        const food = await ctx.db.get(log.foodId);
+        return {
+          ...log,
+          food,
+        };
+      })
+    );
+
+    return enrichedLogs;
+  },
+});
+
 export const addToLog = mutation({
   args: {
     foodId: v.id("foods"),
@@ -141,7 +179,7 @@ export const addToLog = mutation({
       .query("users")
       .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", identity.subject))
       .unique();
-    
+
     if (!user) throw new Error("User not found");
 
     const now = new Date();
@@ -156,5 +194,29 @@ export const addToLog = mutation({
     });
 
     return logId;
+  },
+});
+
+export const deleteLog = mutation({
+  args: {
+    logId: v.id("logs"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthenticated");
+
+    const log = await ctx.db.get(args.logId);
+    if (!log) throw new Error("Log not found");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", identity.subject))
+      .unique();
+
+    if (!user) throw new Error("User not found");
+
+    if (log.userId !== user._id) throw new Error("Unauthorized");
+
+    await ctx.db.delete(args.logId);
   },
 });
