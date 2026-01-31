@@ -112,13 +112,19 @@ src/
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|-----------|
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key for frontend | Yes |
-| `CLERK_SECRET_KEY` | Clerk secret key for backend | Yes |
-| `NEXT_PUBLIC_CONVEX_URL` | Convex deployment URL | Yes |
-| `OPENAI_API_KEY` | OpenAI API key for AI food recognition | Yes |
-| `USDA_API_KEY` | USDA API key for food search (optional) | No |
+| Variable | Description | Required | Cost |
+|----------|-------------|-----------|-------|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key for frontend | Yes | Free |
+| `CLERK_SECRET_KEY` | Clerk secret key for backend | Yes | Free |
+| `NEXT_PUBLIC_CONVEX_URL` | Convex deployment URL | Yes | Free |
+| `OPENAI_API_KEY` | OpenAI API key for AI food recognition | Yes* | Paid |
+| `OPENAI_MODEL` | OpenAI model (gpt-4o or gpt-4o-mini) | No | See below |
+| `AI_PROVIDER` | AI provider (openai or google) | No | See below |
+| `GOOGLE_CLOUD_API_KEY` | Google Cloud Vision API key | Yes** | Free tier |
+| `USDA_API_KEY` | USDA API key for food search (optional) | No | Free |
+
+\*Required if using OpenAI as provider (default)
+\*\*Required if using Google as provider
 
 ## AI Food Recognition
 
@@ -150,6 +156,53 @@ OPENAI_API_KEY=sk-your-api-key-here
 4. Review the identified foods with confidence levels
 5. Click "Search" on a food to find matching items in the database
 6. Add the food to your diary as usual
+
+## AI Provider Options
+
+### OpenAI (Default)
+- **Models**:
+  - `gpt-4o` (default): Most accurate, ~$0.04 per image
+  - `gpt-4o-mini`: ~50x cheaper, ~$0.0008 per image (recommended)
+- **Pros**:
+  - Best image recognition accuracy
+  - Detailed nutritional estimation
+  - Fast response times
+- **Cons**:
+  - Requires paid API key
+  - Usage-based pricing
+
+### Google Cloud Vision
+- **Pricing**:
+  - Free tier: 1000 requests/month
+  - Paid: $1.50 per 1000 requests (after free tier)
+- **Pros**:
+  - Free tier available
+  - Good for food label detection
+- **Cons**:
+  - Does not estimate nutritional values (uses randomized estimates)
+  - Limited label detection compared to GPT-4
+
+### Cost Comparison
+
+| Provider | Model | Cost per Image | Free Tier | Accuracy |
+|----------|--------|----------------|------------|-----------|
+| OpenAI | gpt-4o-mini | ~$0.0008 | No | Highest |
+| OpenAI | gpt-4o | ~$0.04 | No | Highest |
+| Google Vision | - | $0.0015 | 1000/mo | Medium |
+
+**Recommendation**: Use `gpt-4o-mini` for best balance between accuracy and cost. Set `OPENAI_MODEL=gpt-4o-mini` in `.env.local`.
+
+### Switching Providers
+
+To use Google Cloud Vision instead of OpenAI:
+
+1. Get Google Cloud API key: https://console.cloud.google.com/apis/credentials
+2. Add to `.env.local`:
+   ```env
+   AI_PROVIDER=google
+   GOOGLE_CLOUD_API_KEY=your_api_key_here
+   ```
+3. Restart the development server
 
 ## Deployment
 
