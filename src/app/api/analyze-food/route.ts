@@ -58,7 +58,7 @@ async function analyzeWithGoogleVision(imageBase64: string) {
 
   const data = await response.json();
   const foods: AnalyzedFood[] = [];
-  
+
   for (const resp of data.responses) {
     for (const label of resp.labelAnnotations || []) {
       if (label.score > 0.5) {
@@ -87,9 +87,9 @@ export async function POST(request: Request) {
     const imageFile = formData.get("image") as File;
 
     if (!imageFile) {
-      return NextResponse.json(
-        { error: "No image provided" },
-        { status: 400 }
+      return new Response(
+        JSON.stringify({ error: "No image provided" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
 
@@ -107,9 +107,9 @@ export async function POST(request: Request) {
       provider = "openai";
 
       if (!process.env.OPENAI_API_KEY) {
-        return NextResponse.json(
-          { error: "OpenAI API key not configured. Set OPENAI_API_KEY in .env.local or use Google Cloud API" },
-          { status: 500 }
+        return new Response(
+          JSON.stringify({ error: "OpenAI API key not configured. Set OPENAI_API_KEY in .env.local or use Google Cloud API" }),
+          { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
 
@@ -146,39 +146,41 @@ export async function POST(request: Request) {
 
         content = response.choices[0]?.message?.content || "";
       } catch (importError) {
-        return NextResponse.json(
-          { error: "OpenAI SDK not installed. Run: npm install openai" },
-          { status: 500 }
+        return new Response(
+          JSON.stringify({ error: "OpenAI SDK not installed. Run: npm install openai" }),
+          { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
     }
 
     if (!content) {
-      return NextResponse.json(
-        { error: "Failed to analyze image" },
-        { status: 500 }
+      return new Response(
+        JSON.stringify({ error: "Failed to analyze image" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    let parsed: AnalysisResponse;
+    let parsed: Omit<AnalysisResponse, "provider">;
     try {
       parsed = JSON.parse(content.replace(/```json\n?|\n?```/g, "").trim());
     } catch (parseError) {
-      return NextResponse.json(
-        { error: "Failed to parse AI response" },
-        { status: 500 }
+      return new Response(
+        JSON.stringify({ error: "Failed to parse AI response" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    return NextResponse.json({ ...parsed, provider });
+    return new Response(JSON.stringify({ ...parsed, provider }), {
+      headers: { "Content-Type": "application/json" }
+    });
   } catch (error) {
     console.error("Food analysis error:", error);
-    return NextResponse.json(
-      { 
+    return new Response(
+      JSON.stringify({
         error: "Failed to analyze image",
         details: error instanceof Error ? error.message : "Unknown error"
-      },
-      { status: 500 }
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
