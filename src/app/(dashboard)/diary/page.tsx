@@ -30,20 +30,18 @@ export default function DiaryPage() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        let errorMsg = t("FoodVision.analysisError");
         
         try {
           const errorData = JSON.parse(errorText);
           if (errorData.error) {
-            errorMsg += `: ${errorData.error}`;
+            alert(`${t("FoodVision.analysisError")}: ${errorData.error}`);
+          } else {
+            alert(errorText);
           }
         } catch {
-          if (errorText) {
-            errorMsg += `: ${errorText}`;
-          }
+          alert(errorText);
         }
         
-        alert(errorMsg);
         setVisionResults(null);
         setCapturedImage(null);
         return;
