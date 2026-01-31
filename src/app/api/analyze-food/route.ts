@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 
-type Provider = "openai" | "google";
-
 interface AnalyzedFood {
   name: string;
   description?: string;
@@ -9,7 +7,7 @@ interface AnalyzedFood {
   estimatedProteinPer100g: number;
   estimatedCarbsPer100g: number;
   estimatedFatPer100g: number;
-  confidence: number;
+  confidenceScore: number;
 }
 
 interface AnalysisResponse {
@@ -17,7 +15,7 @@ interface AnalysisResponse {
   summary: string;
 }
 
-async function analyzeWithGoogleVision(imageBase64: string) {
+async function analyzeWithGoogleVision(imageBase64: string): Promise<string> {
   const GOOGLE_API_KEY = process.env.GOOGLE_CLOUD_API_KEY;
 
   if (!GOOGLE_API_KEY) {
@@ -53,27 +51,39 @@ async function analyzeWithGoogleVision(imageBase64: string) {
   );
 
   if (!response.ok) {
-    throw new Error("Google Vision API request failed");
+    const errorText = await response.text();
+    console.error("[Google Vision] API request failed:", response.status, errorText);
+    throw new Error(`Google Vision API request failed: ${response.status}`);
   }
 
   const data = await response.json();
+  console.log("[Google Vision] Response:", data.responses?.length, "responses found");
+  
   const foods: AnalyzedFood[] = [];
-
-  for (const resp of data.responses) {
-    for (const label of resp.labelAnnotations || []) {
-      if (label.score > 0.5) {
-        foods.push({
-          name: label.description,
-          description: label.topicality || "",
-          estimatedCaloriesPer100g: Math.floor(Math.random() * 200 + 50),
-          estimatedProteinPer100g: Math.floor(Math.random() * 25 + 5),
-          estimatedCarbsPer100g: Math.floor(Math.random() * 30 + 5),
-          estimatedFatPer100g: Math.floor(Math.random() * 15 + 2),
-          confidence: Math.round(label.score * 100)
-        });
+  
+  if (data.responses && data.responses.length > 0) {
+    for (const resp of data.responses) {
+      console.log("[Google Vision] Labels found:", resp.labelAnnotations?.length);
+      
+      for (const label of resp.labelAnnotations || []) {
+        if (label.score > 0.5) {
+          console.log("[Google Vision] Adding food:", label.description, "score:", label.score);
+          
+          foods.push({
+            name: label.description,
+            description: label.topicality || "",
+            estimatedCaloriesPer100g: Math.floor(Math.random() * 200 + 50),
+            estimatedProteinPer100g: Math.floor(Math.random() * 25 + 5),
+            estimatedCarbsPer100g: Math.floor(Math.random() * 30 + 5),
+            estimatedFatPer100g: Math.floor(Math.random() * 15 + 2),
+            confidenceScore: Math.round(label.score * 100)
+          });
+        }
       }
     }
   }
+
+  console.log("[Google Vision] Total foods found:", foods.length);
 
   return JSON.stringify({
     foods,
@@ -82,11 +92,14 @@ async function analyzeWithGoogleVision(imageBase64: string) {
 }
 
 export async function POST(request: Request) {
+  console.log("[analyze-food] Starting analysis request");
+  
   try {
     const formData = await request.formData();
     const imageFile = formData.get("image") as File;
 
     if (!imageFile) {
+      console.log("[analyze-food] No image provided");
       return new Response(
         JSON.stringify({ error: "No image provided" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
@@ -96,19 +109,27 @@ export async function POST(request: Request) {
     const bytes = await imageFile.arrayBuffer();
     const base64Image = Buffer.from(bytes).toString("base64");
 
+    console.log("[analyze-food] Image file received:", {
+      name: imageFile.name,
+      size: imageFile.size,
+      type: imageFile.type
+    });
+
     let content: string;
-    let provider: Provider;
+    let provider: string = "openai";
     const providerType = process.env.AI_PROVIDER || "openai";
 
     if (providerType === "google" && process.env.GOOGLE_CLOUD_API_KEY) {
       provider = "google";
       content = await analyzeWithGoogleVision(base64Image);
+      console.log("[analyze-food] Using Google Vision provider, response length:", content.length);
     } else {
       provider = "openai";
 
       if (!process.env.OPENAI_API_KEY) {
+        console.log("[analyze-food] No OpenAI API key configured");
         return new Response(
-          JSON.stringify({ error: "OpenAI API key not configured. Set OPENAI_API_KEY in .env.local or use Google Cloud API" }),
+          JSON.stringify({ error: "OpenAI API key not configured. Set OPENAI_API_KEY in .env.local or use Google Cloud Vision (AI_PROVIDER=google)" }),
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
@@ -116,6 +137,7 @@ export async function POST(request: Request) {
       const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
       try {
+        console.log("[analyze-food] Calling OpenAI with model:", model);
         const OpenAI = (await import("openai")).default;
         const openai = new OpenAI({
           apiKey: process.env.OPENAI_API_KEY,
@@ -129,7 +151,7 @@ export async function POST(request: Request) {
               content: [
                 {
                   type: "text",
-                  text: "Analyze this food image and identify all foods present. For each food identified, provide: Name (specific, common name), Brief description (optional), Estimated nutritional values per 100g: calories, protein, carbs, fat, Confidence level (high/medium/low) based on visual clarity. Return response in this exact JSON format: { \"foods\": [ { \"name\": \"Food name\", \"description\": \"Brief description\", \"estimatedCaloriesPer100g\": number, \"estimatedProteinPer100g\": number, \"estimatedCarbsPer100g\": number, \"estimatedFatPer100g\": number, \"confidence\": \"high\" or \"medium\" or \"low\" } ], \"summary\": \"Brief summary of meal\" }"
+                  text: "Analyze this food image and identify all foods present. For each food identified, provide: Name (specific, common name), Brief description (optional), Estimated nutritional values per 100g: calories, protein, carbs, fat based on visual clarity. Return response in this exact JSON format: { \"foods\": [ { \"name\": \"Food name\", \"description\": \"Brief description\", \"estimatedCaloriesPer100g\": number, \"estimatedProteinPer100g\": number, \"estimatedCarbsPer100g\": number, \"estimatedFatPer100g\": number, \"confidenceScore\": number } ], \"summary\": \"Brief summary of meal\" }"
                 },
                 {
                   type: "image_url",
@@ -144,8 +166,12 @@ export async function POST(request: Request) {
           temperature: 0.3
         });
 
+        console.log("[analyze-food] OpenAI response status:", response.choices[0]?.finish_reason);
+        console.log("[analyze-food] OpenAI response tokens:", response.usage);
+
         content = response.choices[0]?.message?.content || "";
       } catch (importError) {
+        console.error("[analyze-food] OpenAI import error:", importError);
         return new Response(
           JSON.stringify({ error: "OpenAI SDK not installed. Run: npm install openai" }),
           { status: 500, headers: { "Content-Type": "application/json" } }
@@ -154,29 +180,35 @@ export async function POST(request: Request) {
     }
 
     if (!content) {
+      console.log("[analyze-food] Empty response from OpenAI");
       return new Response(
-        JSON.stringify({ error: "Failed to analyze image" }),
+        JSON.stringify({ error: "Failed to analyze image: empty response" }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
+
+    console.log("[analyze-food] Raw content length:", content.length);
 
     let parsed: Omit<AnalysisResponse, "provider">;
     try {
       parsed = JSON.parse(content.replace(/```json\n?|\n?```/g, "").trim());
+      console.log("[analyze-food] Parsed response:", parsed);
     } catch (parseError) {
+      console.error("[analyze-food] JSON parse error:", parseError);
       return new Response(
-        JSON.stringify({ error: "Failed to parse AI response" }),
+        JSON.stringify({ error: "Failed to parse AI response: " + (parseError instanceof Error ? parseError.message : String(parseError)) }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
 
+    console.log("[analyze-food] Returning response with provider:", provider);
     return new Response(JSON.stringify({ ...parsed, provider }), {
       headers: { "Content-Type": "application/json" }
     });
   } catch (error) {
-    console.error("Food analysis error:", error);
+    console.error("[analyze-food] Unhandled error:", error);
     return new Response(
-      JSON.stringify({
+      JSON.stringify({ 
         error: "Failed to analyze image",
         details: error instanceof Error ? error.message : "Unknown error"
       }),
