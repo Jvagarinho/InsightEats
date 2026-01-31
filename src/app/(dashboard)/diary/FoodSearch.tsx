@@ -33,9 +33,10 @@ type SelectedFood = Food | null;
 
 type FoodSearchProps = {
   mode?: "log" | "database";
+  onFoodAdded?: () => void;
 };
 
-export function FoodSearch({ mode = "log" }: FoodSearchProps) {
+export function FoodSearch({ mode = "log", onFoodAdded }: FoodSearchProps) {
   const { t } = useLanguage();
   const [term, setTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
@@ -174,6 +175,8 @@ export function FoodSearch({ mode = "log" }: FoodSearchProps) {
     setOpen(false);
     setSelected(null);
     setGrams("");
+
+    onFoodAdded?.();
   }
 
   return (

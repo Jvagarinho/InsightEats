@@ -147,34 +147,30 @@
     "of": "de",
     "target": "Meta"
   },
-  "Features": {
-    "title": "Funcionalidades do InsightEats",
-    "description": "Descubra como o InsightEats ajuda você a assumir o controle da sua nutrição com rastreamento inteligente e insights personalizados.",
-    "mission": {
-      "title": "Nossa Missão",
-      "content": "No InsightEats, acreditamos que a saúde sustentável começa com a consciência. Nosso objetivo é tornar o rastreamento nutricional fácil, preciso e agradável, capacitando você a tomar decisões informadas sobre sua dieta e alcançar seus objetivos de saúde com confiança."
+  "Camera": {
+    "takePhoto": "Tirar Foto",
+    "uploadFromGallery": "Carregar da Galeria",
+    "cancel": "Cancelar",
+    "capture": "Capturar",
+    "errors": {
+      "unavailable": "Câmera não disponível. Verifique as permissões.",
+      "invalidFile": "Selecione um arquivo de imagem válido."
+    }
+  },
+  "FoodVision": {
+    "title": "Reconhecimento de Alimentos por IA",
+    "description": "Tire uma foto ou carregue da galeria para identificar automaticamente os alimentos e estimar seu valor nutricional.",
+    "aiSummary": "Resumo da IA",
+    "confidence": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa"
     },
-    "smartTracking": {
-      "title": "Rastreamento Inteligente",
-      "description": "Registre suas refeições rapidamente com nossa busca inteligente de alimentos que se conecta a bancos de dados globais incluindo Open Food Facts e USDA."
-    },
-    "detailedInsights": {
-      "title": "Insights Detalhados",
-      "description": "Acompanhe suas calorias, macros e peso ao longo do tempo com gráficos bonitos e indicadores de progresso."
-    },
-    "globalDatabase": {
-      "title": "Banco de Dados Global",
-      "description": "Acesse milhares de alimentos verificados de fontes confiáveis em todo o mundo, garantindo informações nutricionais precisas."
-    },
-    "quickEasy": {
-      "title": "Rápido e Fácil",
-      "description": "Projetado para simplicidade, nosso app torna o registro de refeições rápido para que você possa focar no que mais importa."
-    },
-    "technologies": {
-      "title": "Construído com Tecnologia Moderna",
-      "description": "O InsightEats é construído usando as mais recentes tecnologias web para garantir uma experiência rápida, segura e confiável."
-    },
-    "version": "Versão {version}",
-    "backToApp": "Voltar à App"
+    "search": "Buscar",
+    "searchingFor": "Buscando por",
+    "foodAdded": "Alimento adicionado com sucesso!",
+    "analysisError": "Falha ao analisar imagem. Tente novamente.",
+    "analyzing": "Analisando imagem...",
+    "close": "Fechar"
   }
 }

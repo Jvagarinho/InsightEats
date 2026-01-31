@@ -147,34 +147,30 @@
     "of": "of",
     "target": "Target"
   },
-  "Features": {
-    "title": "InsightEats Features",
-    "description": "Discover how InsightEats helps you take control of your nutrition with intelligent tracking and personalized insights.",
-    "mission": {
-      "title": "Our Mission",
-      "content": "At InsightEats, we believe that sustainable health begins with awareness. Our goal is to make nutrition tracking effortless, accurate, and enjoyable, empowering you to make informed decisions about your diet and achieve your health goals with confidence."
+  "Camera": {
+    "takePhoto": "Take Photo",
+    "uploadFromGallery": "Upload from Gallery",
+    "cancel": "Cancel",
+    "capture": "Capture",
+    "errors": {
+      "unavailable": "Camera unavailable. Please check permissions.",
+      "invalidFile": "Please select a valid image file."
+    }
+  },
+  "FoodVision": {
+    "title": "AI Food Recognition",
+    "description": "Take a photo or upload from gallery to automatically identify foods and estimate their nutritional value.",
+    "aiSummary": "AI Summary",
+    "confidence": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
     },
-    "smartTracking": {
-      "title": "Smart Tracking",
-      "description": "Log your meals quickly with our intelligent food search that connects to global databases including Open Food Facts and USDA."
-    },
-    "detailedInsights": {
-      "title": "Detailed Insights",
-      "description": "Track your calories, macros, and weight over time with beautiful charts and progress indicators."
-    },
-    "globalDatabase": {
-      "title": "Global Database",
-      "description": "Access thousands of verified foods from trusted sources worldwide, ensuring accurate nutritional information."
-    },
-    "quickEasy": {
-      "title": "Quick & Easy",
-      "description": "Designed for simplicity, our app makes logging meals fast so you can focus on what matters most."
-    },
-    "technologies": {
-      "title": "Built with Modern Technology",
-      "description": "InsightEats is built using the latest web technologies to ensure a fast, secure, and reliable experience."
-    },
-    "version": "Version {version}",
-    "backToApp": "Back to App"
+    "search": "Search",
+    "searchingFor": "Searching for",
+    "foodAdded": "Food added successfully!",
+    "analysisError": "Failed to analyze image. Please try again.",
+    "analyzing": "Analyzing image...",
+    "close": "Close"
   }
 }

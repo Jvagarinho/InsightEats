@@ -4,14 +4,16 @@ InsightEats is a modern nutrition tracking application that helps you take contr
 
 ## Features
 
-- **Smart Food Search** - Search foods from our local database and external sources (USDA, Open Food Facts)
-- **Food Diary** - Log your daily meals and track your caloric and macro intake
-- **Weight Tracking** - Monitor your weight evolution with beautiful charts
-- **Personalized Goals** - Set your profile to calculate daily calorie and macro targets
-- **Dashboard** - View your daily progress and weight evolution over time
-- **Food Database** - Manage your personal food library
-- **Data Export** - Export your logs and weight data to CSV or JSON
-- **Internationalization** - Available in English and Portuguese
+- **🎯 AI Food Recognition** - Take photos or upload images to automatically identify foods using OpenAI Vision
+- **🍎 Smart Food Search** - Search foods from our local database and external sources (USDA, Open Food Facts)
+- **📓 Food Diary** - Log your daily meals and track your caloric and macro intake
+- **⚖ Weight Tracking** - Monitor your weight evolution with beautiful charts
+- **🎯 Personalized Goals** - Set your profile to calculate daily calorie and macro targets
+- **📊 Dashboard** - View your daily progress and weight evolution over time
+- **🥗 Food Database** - Manage your personal food library
+- **📤 Data Export** - Export your logs and weight data to CSV or JSON
+- **🌍 Internationalization** - Available in English and Portuguese
+- **📱 Mobile-First** - Designed for mobile devices with camera integration
 
 ## Tech Stack
 
@@ -115,7 +117,39 @@ src/
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key for frontend | Yes |
 | `CLERK_SECRET_KEY` | Clerk secret key for backend | Yes |
 | `NEXT_PUBLIC_CONVEX_URL` | Convex deployment URL | Yes |
+| `OPENAI_API_KEY` | OpenAI API key for AI food recognition | Yes |
 | `USDA_API_KEY` | USDA API key for food search (optional) | No |
+
+## AI Food Recognition
+
+InsightEats includes an AI-powered food recognition feature that allows you to:
+
+1. **Take photos directly** - Use your device camera to capture food images
+2. **Upload from gallery** - Select existing photos from your device
+3. **Automatic identification** - OpenAI Vision (GPT-4) identifies foods in the image
+4. **Nutritional estimation** - Get estimated macros for each identified food
+5. **Smart matching** - Search for matching foods in the database for accurate logging
+
+### Getting OpenAI API Key
+
+1. Visit [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Create an account or sign in
+3. Navigate to API Keys section
+4. Create a new API key
+5. Add the key to your `.env.local` file:
+
+```env
+OPENAI_API_KEY=sk-your-api-key-here
+```
+
+### Usage
+
+1. Go to the Food Diary page
+2. Click "Take Photo" or "Upload from Gallery" in the AI Food Recognition section
+3. The AI will analyze the image and identify foods
+4. Review the identified foods with confidence levels
+5. Click "Search" on a food to find matching items in the database
+6. Add the food to your diary as usual
 
 ## Deployment
 
