@@ -29,15 +29,34 @@ export default function DiaryPage() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to analyze image");
+        const errorText = await response.text();
+        let errorMsg = t("FoodVision.analysisError");
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.error) {
+            errorMsg += `: ${errorData.error}`;
+          }
+        } catch {
+          if (errorText) {
+            errorMsg += `: ${errorText}`;
+          }
+        }
+        
+        alert(errorMsg);
+        setVisionResults(null);
+        setCapturedImage(null);
+        return;
       }
 
       const data = await response.json();
       setVisionResults(data);
     } catch (error) {
       console.error("Image analysis error:", error);
-      alert(t("FoodVision.analysisError"));
+      const errorMsg = error instanceof Error ? error.message : t("FoodVision.analysisError");
+      alert(errorMsg);
+      setVisionResults(null);
+      setCapturedImage(null);
     } finally {
       setIsAnalyzing(false);
     }
