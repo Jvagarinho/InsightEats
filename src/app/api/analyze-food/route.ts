@@ -16,15 +16,40 @@ interface AnalysisResponse {
   summary: string;
 }
 
-async function getAccessToken(): Promise<string> {
-  const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  
-  if (!credentialsPath) {
-    throw new Error("GOOGLE_APPLICATION_CREDENTIALS not configured");
+function getCredentialsFromEnv(): object {
+  // Try base64 encoded credentials first (for Vercel)
+  const base64Credentials = process.env.GOOGLE_CREDENTIALS_BASE64;
+  if (base64Credentials) {
+    try {
+      const decoded = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+      return JSON.parse(decoded);
+    } catch (error) {
+      console.error("[Google Vision] Failed to decode base64 credentials:", error);
+      throw new Error("Invalid GOOGLE_CREDENTIALS_BASE64 format");
+    }
   }
 
+  // Fallback to file path (for local development)
+  const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  if (credentialsPath) {
+    try {
+      const fs = require('fs');
+      const content = fs.readFileSync(credentialsPath, 'utf-8');
+      return JSON.parse(content);
+    } catch (error) {
+      console.error("[Google Vision] Failed to read credentials file:", error);
+      throw new Error("Failed to read GOOGLE_APPLICATION_CREDENTIALS file");
+    }
+  }
+
+  throw new Error("No Google credentials configured. Set GOOGLE_CREDENTIALS_BASE64 or GOOGLE_APPLICATION_CREDENTIALS");
+}
+
+async function getAccessToken(): Promise<string> {
+  const credentials = getCredentialsFromEnv();
+
   const auth = new GoogleAuth({
-    keyFile: credentialsPath,
+    credentials,
     scopes: ["https://www.googleapis.com/auth/cloud-vision"]
   });
 
@@ -142,7 +167,7 @@ export async function POST(request: Request) {
     let provider: string = "openai";
     const providerType = process.env.AI_PROVIDER || "openai";
 
-    if (providerType === "google" && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    if (providerType === "google" && (process.env.GOOGLE_CREDENTIALS_BASE64 || process.env.GOOGLE_APPLICATION_CREDENTIALS)) {
       provider = "google";
       content = await analyzeWithGoogleVision(base64Image);
       console.log("[analyze-food] Using Google Vision provider, response length:", content.length);
