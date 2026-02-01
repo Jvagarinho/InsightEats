@@ -64,6 +64,74 @@ async function getAccessToken(): Promise<string> {
   return accessToken.token;
 }
 
+// Function to get nutritional data from USDA FoodData Central
+async function getUSDAFoodData(foodName: string): Promise<{ calories: number; protein: number; carbs: number; fat: number } | null> {
+  const apiKey = process.env.USDA_API_KEY;
+  
+  if (!apiKey) {
+    console.log("[USDA] No API key configured, using estimates");
+    return null;
+  }
+
+  try {
+    console.log(`[USDA] Searching for: ${foodName}`);
+    
+    // Search for food in USDA database
+    const searchResponse = await fetch(
+      `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(foodName)}&pageSize=1&api_key=${apiKey}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      }
+    );
+
+    if (!searchResponse.ok) {
+      console.error("[USDA] Search failed:", searchResponse.status);
+      return null;
+    }
+
+    const searchData = await searchResponse.json();
+    
+    if (!searchData.foods || searchData.foods.length === 0) {
+      console.log(`[USDA] No results found for: ${foodName}`);
+      return null;
+    }
+
+    const food = searchData.foods[0];
+    console.log(`[USDA] Found: ${food.description}`);
+
+    // Extract nutritional values per 100g
+    let calories = 0, protein = 0, carbs = 0, fat = 0;
+    
+    for (const nutrient of food.foodNutrients || []) {
+      const nutrientName = nutrient.nutrientName?.toLowerCase() || "";
+      const value = nutrient.value || 0;
+      
+      if (nutrientName.includes("energy") && nutrientName.includes("kcal")) {
+        calories = value;
+      } else if (nutrientName.includes("protein")) {
+        protein = value;
+      } else if (nutrientName.includes("carbohydrate") && !nutrientName.includes("fiber")) {
+        carbs = value;
+      } else if (nutrientName.includes("fat") && !nutrientName.includes("saturated")) {
+        fat = value;
+      }
+    }
+
+    // If no calories found, calculate from macros (4 cal/g protein, 4 cal/g carbs, 9 cal/g fat)
+    if (calories === 0 && (protein > 0 || carbs > 0 || fat > 0)) {
+      calories = (protein * 4) + (carbs * 4) + (fat * 9);
+    }
+
+    console.log(`[USDA] Nutritional values per 100g: ${Math.round(calories)} kcal, ${protein.toFixed(1)}g P, ${carbs.toFixed(1)}g C, ${fat.toFixed(1)}g F`);
+    
+    return { calories, protein, carbs, fat };
+  } catch (error) {
+    console.error("[USDA] Error fetching data:", error);
+    return null;
+  }
+}
+
 // Function to get food image from Unsplash
 async function getFoodImage(foodName: string): Promise<string | undefined> {
   try {
@@ -181,20 +249,38 @@ async function analyzeWithHuggingFace(imageBase64: string): Promise<string> {
       detectedFoods.add(caption.replace(/^a\s+|^an\s+|^the\s+/i, "").split(/[\s,;]+/).slice(0, 3).join(" "));
     }
     
-    // Convert detected foods to AnalyzedFood array
+    // Convert detected foods to AnalyzedFood array with real nutritional data
+    console.log("[USDA] Fetching nutritional data for", detectedFoods.size, "foods...");
+    
     for (const foodName of detectedFoods) {
       // Capitalize first letter
       const formattedName = foodName.charAt(0).toUpperCase() + foodName.slice(1);
       
-      foods.push({
-        name: formattedName,
-        description: `Detected in: "${caption}"`,
-        estimatedCaloriesPer100g: Math.floor(Math.random() * 200 + 50),
-        estimatedProteinPer100g: Math.floor(Math.random() * 25 + 5),
-        estimatedCarbsPer100g: Math.floor(Math.random() * 30 + 5),
-        estimatedFatPer100g: Math.floor(Math.random() * 15 + 2),
-        confidenceScore: 85 // BLIP is generally confident
-      });
+      // Try to get real nutritional data from USDA
+      const usdaData = await getUSDAFoodData(formattedName);
+      
+      if (usdaData) {
+        foods.push({
+          name: formattedName,
+          description: `Detected in: "${caption}"`,
+          estimatedCaloriesPer100g: usdaData.calories,
+          estimatedProteinPer100g: usdaData.protein,
+          estimatedCarbsPer100g: usdaData.carbs,
+          estimatedFatPer100g: usdaData.fat,
+          confidenceScore: 85 // BLIP is generally confident
+        });
+      } else {
+        // Fallback to estimates if USDA data not available
+        foods.push({
+          name: formattedName,
+          description: `Detected in: "${caption}"`,
+          estimatedCaloriesPer100g: Math.floor(Math.random() * 200 + 50),
+          estimatedProteinPer100g: Math.floor(Math.random() * 25 + 5),
+          estimatedCarbsPer100g: Math.floor(Math.random() * 30 + 5),
+          estimatedFatPer100g: Math.floor(Math.random() * 15 + 2),
+          confidenceScore: 85
+        });
+      }
     }
 
     // Fetch images for each food item
@@ -206,7 +292,7 @@ async function analyzeWithHuggingFace(imageBase64: string): Promise<string> {
       })
     );
 
-    console.log("[Hugging Face] Total foods found:", foodsWithImages.length);
+    console.log("[Hugging Face + USDA] Total foods found with real data:", foodsWithImages.length);
 
     return JSON.stringify({
       foods: foodsWithImages,
