@@ -158,6 +158,22 @@ const en = {
     deleteError: "Error deleting entry",
     deleteLog: "Delete entry"
   },
+  Foods: {
+    title: "Foods Library",
+    subtitle: "Manage your food database and add new items",
+    addNewFood: "Add New Food",
+    searchDescription: "Search for foods in external databases or add your own",
+    yourLibrary: "Your Food Library",
+    filterLibrary: "Filter foods...",
+    emptyLibrary: "No foods in your library yet",
+    headers: {
+      name: "Name",
+      calories: "Calories",
+      protein: "Protein",
+      carbs: "Carbs",
+      fat: "Fat"
+    }
+  },
   FoodSearch: {
     placeholder: "Search for a food...",
     externalResults: "External Results",

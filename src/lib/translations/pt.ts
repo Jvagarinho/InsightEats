@@ -158,6 +158,22 @@ const pt = {
     deleteError: "Erro ao eliminar entrada",
     deleteLog: "Eliminar entrada"
   },
+  Foods: {
+    title: "Biblioteca de Alimentos",
+    subtitle: "Gerencie a sua base de dados de alimentos e adicione novos itens",
+    addNewFood: "Adicionar Novo Alimento",
+    searchDescription: "Procure alimentos em bases de dados externas ou adicione os seus",
+    yourLibrary: "A Sua Biblioteca",
+    filterLibrary: "Filtrar alimentos...",
+    emptyLibrary: "Ainda sem alimentos na biblioteca",
+    headers: {
+      name: "Nome",
+      calories: "Calorias",
+      protein: "Proteínas",
+      carbs: "Carboidratos",
+      fat: "Gorduras"
+    }
+  },
   FoodSearch: {
     placeholder: "Procurar alimento...",
     externalResults: "Resultados Externos",
