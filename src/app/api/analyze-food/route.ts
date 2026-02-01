@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { GoogleAuth } from "google-auth-library";
 
 interface AnalyzedFood {
   name: string;
@@ -15,13 +16,29 @@ interface AnalysisResponse {
   summary: string;
 }
 
-async function analyzeWithGoogleVision(imageBase64: string): Promise<string> {
-  const GOOGLE_API_KEY = process.env.GOOGLE_CLOUD_API_KEY;
-
-  if (!GOOGLE_API_KEY) {
-    throw new Error("Google Cloud API key not configured");
+async function getAccessToken(): Promise<string> {
+  const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  
+  if (!credentialsPath) {
+    throw new Error("GOOGLE_APPLICATION_CREDENTIALS not configured");
   }
 
+  const auth = new GoogleAuth({
+    keyFile: credentialsPath,
+    scopes: ["https://www.googleapis.com/auth/cloud-vision"]
+  });
+
+  const client = await auth.getClient();
+  const accessToken = await client.getAccessToken();
+  
+  if (!accessToken.token) {
+    throw new Error("Failed to get access token");
+  }
+
+  return accessToken.token;
+}
+
+async function analyzeWithGoogleVision(imageBase64: string): Promise<string> {
   const requestBody = {
     requests: [
       {
@@ -41,11 +58,17 @@ async function analyzeWithGoogleVision(imageBase64: string): Promise<string> {
     ]
   };
 
+  // Get OAuth2 access token from service account
+  const accessToken = await getAccessToken();
+  
   const response = await fetch(
-    `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`,
+    "https://vision.googleapis.com/v1/images:annotate",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
       body: JSON.stringify(requestBody)
     }
   );
@@ -119,7 +142,7 @@ export async function POST(request: Request) {
     let provider: string = "openai";
     const providerType = process.env.AI_PROVIDER || "openai";
 
-    if (providerType === "google" && process.env.GOOGLE_CLOUD_API_KEY) {
+    if (providerType === "google" && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
       provider = "google";
       content = await analyzeWithGoogleVision(base64Image);
       console.log("[analyze-food] Using Google Vision provider, response length:", content.length);

@@ -46,7 +46,6 @@ export function DailyProgressHeader() {
       protein: 0,
       carbs: 0,
       fat: 0,
-      fiber: 0,
     };
 
   const caloriesGoal = goals?.caloriesTarget ?? 0;
@@ -73,12 +72,6 @@ export function DailyProgressHeader() {
       value: summary.fat ?? 0,
       unit: "g",
       target: goals?.fatTargetGrams ?? 0,
-    },
-    {
-      label: t("DailyProgress.macros.fiber"),
-      value: summary.fiber ?? 0,
-      unit: "g",
-      target: 25,
     },
   ];
 
@@ -171,7 +164,7 @@ export function DailyProgressHeader() {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
         {macroCards.map((card) => (
           <div
             key={card.label}

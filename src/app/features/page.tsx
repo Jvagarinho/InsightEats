@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/LanguageProvider";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Heart, BarChart3, Globe, Zap, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -41,13 +42,16 @@ export default function FeaturesPage() {
             {t("Features.description")}
           </p>
         </div>
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2 px-6 py-3 rounded-full border border-soft-green text-soft-green text-sm font-semibold hover:bg-soft-green hover:text-white transition-colors"
-        >
-          <ArrowLeft size={16} />
-          {t("Features.backToApp")}
-        </Link>
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher />
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 px-6 py-3 rounded-full border border-soft-green text-soft-green text-sm font-semibold hover:bg-soft-green hover:text-white transition-colors"
+          >
+            <ArrowLeft size={16} />
+            {t("Features.backToApp")}
+          </Link>
+        </div>
       </div>
 
       <div className="bg-gradient-to-br from-soft-green/5 to-soft-green/10 rounded-3xl p-8 border border-soft-green/20">

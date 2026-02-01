@@ -137,7 +137,7 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
             <img
               src={preview.url}
               alt="Food preview"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
           {!isAnalyzing && (

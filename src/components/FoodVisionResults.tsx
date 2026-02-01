@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Utensils, ChevronRight } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { Utensils, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "./LanguageProvider";
 import clsx from "clsx";
-import { FoodSearch } from "../app/(dashboard)/diary/FoodSearch";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/Dialog";
 
 export interface AnalyzedFood {
   name: string;
@@ -26,7 +29,11 @@ type FoodVisionResultsProps = {
 export function FoodVisionResults({ foods, summary, onClose }: FoodVisionResultsProps) {
   const { t } = useLanguage();
   const [selectedFood, setSelectedFood] = useState<AnalyzedFood | null>(null);
-  const [showSearch, setShowSearch] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [grams, setGrams] = useState<string>("100");
+  
+  const createFood = useMutation(api.foods.create);
+  const addToLog = useMutation(api.logs.addToLog);
 
   const confidenceColors = {
     high: "bg-green-100 text-green-800",
@@ -40,40 +47,53 @@ export function FoodVisionResults({ foods, summary, onClose }: FoodVisionResults
     low: t("FoodVision.confidence.low"),
   };
 
-  function handleSearchFood(food: AnalyzedFood) {
+  const macros = useMemo(() => {
+    if (!selectedFood) return null;
+    const quantity = Number(grams) || 0;
+    const factor = quantity / 100;
+    return {
+      calories: selectedFood.estimatedCaloriesPer100g * factor,
+      protein: selectedFood.estimatedProteinPer100g * factor,
+      carbs: selectedFood.estimatedCarbsPer100g * factor,
+      fat: selectedFood.estimatedFatPer100g * factor,
+    };
+  }, [selectedFood, grams]);
+
+  function handleAddClick(food: AnalyzedFood) {
     setSelectedFood(food);
-    setShowSearch(true);
+    setGrams("100");
+    setOpen(true);
   }
 
-  function handleFoodAdded() {
-    toast.success(t("FoodVision.foodAdded"));
-    setShowSearch(false);
-    setSelectedFood(null);
-  }
+  async function handleConfirm() {
+    if (!selectedFood) return;
+    const quantity = Number(grams);
+    if (!quantity || quantity <= 0) return;
 
-  if (showSearch && selectedFood) {
-    return (
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">
-              {t("FoodVision.searchingFor")}
-            </h3>
-            <p className="text-sm text-gray-500">
-              &quot;{selectedFood.name}&quot;
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowSearch(false)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            ✕
-          </button>
-        </div>
-        <FoodSearch mode="log" onFoodAdded={handleFoodAdded} />
-      </div>
-    );
+    try {
+      // Create food in database with estimated values
+      const foodId = await createFood({
+        name: selectedFood.name,
+        caloriesPer100g: selectedFood.estimatedCaloriesPer100g,
+        proteinPer100g: selectedFood.estimatedProteinPer100g,
+        carbsPer100g: selectedFood.estimatedCarbsPer100g,
+        fatPer100g: selectedFood.estimatedFatPer100g,
+      });
+
+      // Add to log
+      await addToLog({
+        foodId: foodId as Id<"foods">,
+        quantityGrams: quantity,
+      });
+
+      toast.success(t("FoodVision.foodAdded"));
+      setOpen(false);
+      setSelectedFood(null);
+      setGrams("100");
+    } catch (error) {
+      console.error("Error adding food to diary:", error);
+      toast.error(t("FoodVision.errorAdding"));
+    }
   }
 
   return (
@@ -136,11 +156,11 @@ export function FoodVisionResults({ foods, summary, onClose }: FoodVisionResults
 
               <button
                 type="button"
-                onClick={() => handleSearchFood(food)}
+                onClick={() => handleAddClick(food)}
                 className="flex items-center gap-1 px-3 py-2 rounded-lg bg-soft-green text-white text-sm font-semibold hover:bg-soft-green-hover transition-colors"
               >
-                {t("FoodVision.search")}
-                <ChevronRight size={16} />
+                <Plus size={16} />
+                {t("FoodVision.addToDiary")}
               </button>
             </div>
           </div>
@@ -156,6 +176,86 @@ export function FoodVisionResults({ foods, summary, onClose }: FoodVisionResults
           {t("FoodVision.close")}
         </button>
       </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-sm:w-[95vw] max-sm:max-w-[95vw]">
+          <DialogHeader>
+            <DialogTitle>{t("FoodVision.addToDiary")}</DialogTitle>
+          </DialogHeader>
+          {selectedFood && (
+            <div className="space-y-4">
+              <div>
+                <div className="font-semibold text-gray-800">{selectedFood.name}</div>
+                <div className="text-sm text-gray-500">
+                  {Math.round(selectedFood.estimatedCaloriesPer100g)} kcal · {" "}
+                  {selectedFood.estimatedProteinPer100g.toFixed(1)}g P · {" "}
+                  {selectedFood.estimatedCarbsPer100g.toFixed(1)}g C · {" "}
+                  {selectedFood.estimatedFatPer100g.toFixed(1)}g F per 100g
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  {t("FoodSearch.quantityGrams")}
+                </label>
+                <input
+                  type="number"
+                  value={grams}
+                  onChange={(e) => setGrams(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-soft-green focus:border-soft-green text-base"
+                  min={0}
+                />
+              </div>
+
+              {macros && (
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-gray-500">{t("DailyProgress.macros.calories")}</div>
+                    <div className="font-semibold text-gray-800">
+                      {Math.round(macros.calories)} kcal
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-gray-500">{t("DailyProgress.macros.protein")}</div>
+                    <div className="font-semibold text-gray-800">
+                      {macros.protein.toFixed(1)} g
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-gray-500">{t("DailyProgress.macros.carbs")}</div>
+                    <div className="font-semibold text-gray-800">
+                      {macros.carbs.toFixed(1)} g
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-gray-500">{t("DailyProgress.macros.fats")}</div>
+                    <div className="font-semibold text-gray-800">
+                      {macros.fat.toFixed(1)} g
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-4 max-sm:flex-col-reverse">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="px-4 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm w-full sm:w-auto"
+                >
+                  {t("FoodSearch.cancel")}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirm}
+                  className="px-4 py-3 rounded-xl bg-soft-green text-white font-semibold hover:bg-soft-green-hover text-sm w-full sm:w-auto"
+                >
+                  {t("FoodVision.addToDiary")}
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

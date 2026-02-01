@@ -7,6 +7,56 @@
     "signOut": "Sair"
   },
   "Common": {
-    "loading": "Carregando..."
+    "loading": "A carregar..."
+  },
+  "FoodVision": {
+    "title": "Analisar Comida com IA",
+    "description": "Tire uma foto ou carregue uma imagem da sua refeição e deixe a IA identificar os alimentos e estimar os valores nutricionais.",
+    "analyzing": "A analisar imagem...",
+    "analysisError": "Erro ao analisar imagem",
+    "aiSummary": "Resumo da IA",
+    "confidence": {
+      "high": "Alta",
+      "medium": "Média",
+      "low": "Baixa"
+    },
+    "search": "Procurar",
+    "searchingFor": "A procurar",
+    "foodAdded": "Alimento adicionado ao diário com sucesso!",
+    "errorAdding": "Erro ao adicionar alimento ao diário",
+    "close": "Fechar",
+    "addToDiary": "Adicionar ao Diário"
+  },
+  "Diary": {
+    "title": "Diário Alimentar",
+    "subtitle": "Registe as suas refeições e monitorize a sua nutrição",
+    "addToDiary": "Adicionar ao Diário",
+    "todayLog": "Registo de Hoje",
+    "noLogsToday": "Ainda sem refeições registadas hoje",
+    "logDeleted": "Entrada eliminada com sucesso",
+    "deleteError": "Erro ao eliminar entrada",
+    "deleteLog": "Eliminar entrada"
+  },
+  "FoodSearch": {
+    "placeholder": "Procurar alimento...",
+    "externalResults": "Resultados Externos",
+    "searchingExternal": "A procurar em fontes externas...",
+    "noResults": "Nenhum resultado encontrado",
+    "addFood": "Adicionar Alimento",
+    "quantityGrams": "Quantidade (gramas)",
+    "cancel": "Cancelar",
+    "addToDiary": "Adicionar ao Diário",
+    "alreadyInDb": "Alimento já existe na base de dados",
+    "addedToDb": "Alimento adicionado à base de dados",
+    "mealRecorded": "Refeição registada com sucesso!"
+  },
+  "DailyProgress": {
+    "today": "Hoje",
+    "macros": {
+      "calories": "Calorias",
+      "protein": "Proteínas",
+      "carbs": "Carboidratos",
+      "fats": "Gorduras"
+    }
   }
 }

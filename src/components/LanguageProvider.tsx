@@ -2,8 +2,7 @@
 
 import { createContext, useContext, useEffect, useReducer } from "react";
 import type { ReactNode } from "react";
-import enModule from "../messages/en.json";
-import ptModule from "../messages/pt.json";
+import { en, pt } from "@/lib/translations";
 
 type Locale = "en" | "pt";
 
@@ -12,12 +11,8 @@ type NestedMessages = {
 };
 
 const translations: Record<Locale, NestedMessages> = {
-  en:
-    (enModule as { default?: NestedMessages }).default ??
-    (enModule as NestedMessages),
-  pt:
-    (ptModule as { default?: NestedMessages }).default ??
-    (ptModule as NestedMessages),
+  en,
+  pt,
 };
 
 type LanguageContextValue = {
