@@ -23,7 +23,14 @@ const en = {
     takePhoto: "Take Photo",
     uploadFromGallery: "Upload from Gallery",
     cancel: "Cancel",
-    capture: "Capture"
+    capture: "Capture",
+    permissionDenied: "Camera access denied. Please allow camera access in your device settings and try again.",
+    notFound: "Camera not found on this device. Please use Upload from Gallery instead.",
+    inUse: "Camera is already in use by another app. Please close other apps and try again.",
+    notSupported: "Camera is not supported on this device or browser. Please use Upload from Gallery instead.",
+    unavailable: "Unable to access camera. Please use Upload from Gallery instead.",
+    playError: "Error starting camera. Please try again or use Upload from Gallery.",
+    invalidFile: "Please select a valid image file."
   },
   Features: {
     title: "Features",

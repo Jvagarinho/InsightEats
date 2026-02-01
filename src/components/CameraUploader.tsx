@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Camera, Upload, X } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 
@@ -18,37 +18,93 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
   const { t } = useLanguage();
   const [preview, setPreview] = useState<ImagePreview | null>(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function startCamera() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment", width: 640, height: 640 },
-        audio: false,
-      });
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setShowCamera(true);
-        setError(null);
-      }
-    } catch (err) {
-      console.error("Camera error:", err);
-      setError("Camera.unavailable");
-    }
-  }
-
-  function stopCamera() {
-    const stream = videoRef.current?.srcObject as MediaStream;
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
     }
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
     setShowCamera(false);
+    setIsLoading(false);
+  }, []);
+
+  async function startCamera() {
+    setError(null);
+    setIsLoading(true);
+    
+    try {
+      // Check if mediaDevices is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Camera.notSupported");
+      }
+
+      // iOS Safari requires facingMode and specific constraints
+      const constraints = {
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false,
+      };
+
+      console.log("[Camera] Requesting camera access...");
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      console.log("[Camera] Stream obtained, tracks:", stream.getTracks().length);
+      streamRef.current = stream;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        
+        // Wait for video to be ready before showing camera UI
+        videoRef.current.onloadedmetadata = () => {
+          console.log("[Camera] Video metadata loaded");
+          videoRef.current?.play().then(() => {
+            console.log("[Camera] Video playing");
+            setShowCamera(true);
+            setIsLoading(false);
+          }).catch((err) => {
+            console.error("[Camera] Error playing video:", err);
+            setError("Camera.playError");
+            stopCamera();
+          });
+        };
+
+        // Fallback timeout in case loadedmetadata doesn't fire
+        setTimeout(() => {
+          if (!showCamera && streamRef.current) {
+            console.log("[Camera] Fallback: forcing show camera");
+            setShowCamera(true);
+            setIsLoading(false);
+          }
+        }, 1000);
+      }
+    } catch (err: any) {
+      console.error("[Camera] Error:", err);
+      setIsLoading(false);
+      
+      // Handle specific iOS errors
+      if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+        setError("Camera.permissionDenied");
+      } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+        setError("Camera.notFound");
+      } else if (err.name === "NotReadableError" || err.name === "TrackStartError") {
+        setError("Camera.inUse");
+      } else if (err.message === "Camera.notSupported") {
+        setError("Camera.notSupported");
+      } else {
+        setError("Camera.unavailable");
+      }
+    }
   }
 
   function capturePhoto() {
@@ -60,8 +116,10 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
 
     if (!context) return;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    // Use video dimensions
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     canvas.toBlob((blob) => {
@@ -105,11 +163,11 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
         <button
           type="button"
           onClick={startCamera}
-          disabled={isAnalyzing}
+          disabled={isAnalyzing || isLoading}
           className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-soft-green text-soft-green font-semibold hover:bg-soft-green/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <Camera size={20} />
-          {t("Camera.takePhoto")}
+          {isLoading ? t("Common.loading") : t("Camera.takePhoto")}
         </button>
 
         <label className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-soft-green text-soft-green font-semibold hover:bg-soft-green/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
@@ -118,6 +176,7 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
           <input
             type="file"
             accept="image/*"
+            capture="environment"
             onChange={handleFileSelect}
             disabled={isAnalyzing}
             className="hidden"
@@ -127,7 +186,7 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
 
       {error && (
         <p className="text-sm text-red-500 bg-red-50 px-4 py-2 rounded-lg">
-          {t(`Camera.errors.${error}`)}
+          {t(error)}
         </p>
       )}
 
@@ -161,6 +220,7 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
               playsInline
               muted
               className="w-full rounded-2xl"
+              style={{ transform: "scaleX(-1)" }}
             />
             <canvas ref={canvasRef} className="hidden" />
             <div className="flex gap-3 justify-center mt-4">

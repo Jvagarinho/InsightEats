@@ -23,7 +23,14 @@ const pt = {
     takePhoto: "Tirar Foto",
     uploadFromGallery: "Carregar da Galeria",
     cancel: "Cancelar",
-    capture: "Capturar"
+    capture: "Capturar",
+    permissionDenied: "Acesso à câmara negado. Por favor permita o acesso à câmara nas definições do dispositivo e tente novamente.",
+    notFound: "Câmara não encontrada neste dispositivo. Por favor use Carregar da Galeria.",
+    inUse: "A câmara está a ser usada por outra aplicação. Por favor feche outras aplicações e tente novamente.",
+    notSupported: "A câmara não é suportada neste dispositivo ou navegador. Por favor use Carregar da Galeria.",
+    unavailable: "Não foi possível aceder à câmara. Por favor use Carregar da Galeria.",
+    playError: "Erro ao iniciar a câmara. Por favor tente novamente ou use Carregar da Galeria.",
+    invalidFile: "Por favor selecione um ficheiro de imagem válido."
   },
   Features: {
     title: "Funcionalidades",
