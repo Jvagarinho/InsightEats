@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Utensils, Plus } from "lucide-react";
+import { Utensils, Plus, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "./LanguageProvider";
 import clsx from "clsx";
@@ -18,6 +18,7 @@ export interface AnalyzedFood {
   estimatedCarbsPer100g: number;
   estimatedFatPer100g: number;
   confidence: "high" | "medium" | "low";
+  imageUrl?: string;
 }
 
 type FoodVisionResultsProps = {
@@ -109,59 +110,85 @@ export function FoodVisionResults({ foods, summary, onClose }: FoodVisionResults
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-3 max-h-96 overflow-y-auto">
         {foods.map((food, index) => (
           <div
             key={index}
             className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-shadow"
           >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <Utensils size={18} className="text-soft-green" />
-                  <h4 className="font-semibold text-gray-800">
-                    {food.name}
-                  </h4>
-                  <span
-                    className={clsx(
-                      "text-xs px-2 py-0.5 rounded-full font-medium",
-                      confidenceColors[food.confidence]
-                    )}
-                  >
-                    {confidenceLabels[food.confidence]}
-                  </span>
-                </div>
-
-                {food.description && (
-                  <p className="text-sm text-gray-600 mb-3">
-                    {food.description}
-                  </p>
+            <div className="flex gap-4">
+              {/* Food Image */}
+              <div className="flex-shrink-0">
+                {food.imageUrl ? (
+                  <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
+                    <img
+                      src={food.imageUrl}
+                      alt={food.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Hide image on error
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-24 h-24 rounded-lg bg-gray-100 flex items-center justify-center">
+                    <ImageOff size={32} className="text-gray-300" />
+                  </div>
                 )}
-
-                <div className="flex flex-wrap gap-3 text-xs text-gray-500">
-                  <span className="bg-gray-50 px-2 py-1 rounded">
-                    {Math.round(food.estimatedCaloriesPer100g)} kcal / 100g
-                  </span>
-                  <span className="bg-gray-50 px-2 py-1 rounded">
-                    {food.estimatedProteinPer100g.toFixed(1)}g P
-                  </span>
-                  <span className="bg-gray-50 px-2 py-1 rounded">
-                    {food.estimatedCarbsPer100g.toFixed(1)}g C
-                  </span>
-                  <span className="bg-gray-50 px-2 py-1 rounded">
-                    {food.estimatedFatPer100g.toFixed(1)}g F
-                  </span>
-                </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => handleAddClick(food)}
-                className="flex items-center gap-1 px-3 py-2 rounded-lg bg-soft-green text-white text-sm font-semibold hover:bg-soft-green-hover transition-colors"
-              >
-                <Plus size={16} />
-                {t("FoodVision.addToDiary")}
-              </button>
+              {/* Food Details */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h4 className="font-semibold text-gray-800 truncate">
+                        {food.name}
+                      </h4>
+                      <span
+                        className={clsx(
+                          "text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0",
+                          confidenceColors[food.confidence]
+                        )}
+                      >
+                        {confidenceLabels[food.confidence]}
+                      </span>
+                    </div>
+
+                    {food.description && (
+                      <p className="text-sm text-gray-600 mb-2">
+                        {food.description}
+                      </p>
+                    )}
+
+                    <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+                      <span className="bg-gray-50 px-2 py-1 rounded">
+                        {Math.round(food.estimatedCaloriesPer100g)} kcal
+                      </span>
+                      <span className="bg-gray-50 px-2 py-1 rounded">
+                        {food.estimatedProteinPer100g.toFixed(1)}g P
+                      </span>
+                      <span className="bg-gray-50 px-2 py-1 rounded">
+                        {food.estimatedCarbsPer100g.toFixed(1)}g C
+                      </span>
+                      <span className="bg-gray-50 px-2 py-1 rounded">
+                        {food.estimatedFatPer100g.toFixed(1)}g F
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddClick(food)}
+                    className="flex-shrink-0 flex items-center gap-1 px-3 py-2 rounded-lg bg-soft-green text-white text-sm font-semibold hover:bg-soft-green-hover transition-colors"
+                  >
+                    <Plus size={16} />
+                    <span className="hidden sm:inline">{t("FoodVision.addToDiary")}</span>
+                    <span className="sm:hidden">Add</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         ))}
@@ -184,13 +211,24 @@ export function FoodVisionResults({ foods, summary, onClose }: FoodVisionResults
           </DialogHeader>
           {selectedFood && (
             <div className="space-y-4">
-              <div>
-                <div className="font-semibold text-gray-800">{selectedFood.name}</div>
-                <div className="text-sm text-gray-500">
-                  {Math.round(selectedFood.estimatedCaloriesPer100g)} kcal · {" "}
-                  {selectedFood.estimatedProteinPer100g.toFixed(1)}g P · {" "}
-                  {selectedFood.estimatedCarbsPer100g.toFixed(1)}g C · {" "}
-                  {selectedFood.estimatedFatPer100g.toFixed(1)}g F per 100g
+              <div className="flex gap-4">
+                {selectedFood.imageUrl && (
+                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                    <img
+                      src={selectedFood.imageUrl}
+                      alt={selectedFood.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className="font-semibold text-gray-800">{selectedFood.name}</div>
+                  <div className="text-sm text-gray-500">
+                    {Math.round(selectedFood.estimatedCaloriesPer100g)} kcal · {" "}
+                    {selectedFood.estimatedProteinPer100g.toFixed(1)}g P · {" "}
+                    {selectedFood.estimatedCarbsPer100g.toFixed(1)}g C · {" "}
+                    {selectedFood.estimatedFatPer100g.toFixed(1)}g F per 100g
+                  </div>
                 </div>
               </div>
 
