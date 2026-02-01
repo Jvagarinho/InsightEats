@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
-import { Camera, Upload, X } from "lucide-react";
+import { useState, useRef } from "react";
+import { Camera, Upload, X, Loader2 } from "lucide-react";
 import { useLanguage } from "./LanguageProvider";
 
 type ImagePreview = {
@@ -18,13 +18,13 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
   const { t } = useLanguage();
   const [preview, setPreview] = useState<ImagePreview | null>(null);
   const [showCamera, setShowCamera] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  const stopCamera = useCallback(() => {
+  function stopCamera() {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
@@ -33,12 +33,12 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
       videoRef.current.srcObject = null;
     }
     setShowCamera(false);
-    setIsLoading(false);
-  }, []);
+    setIsInitializing(false);
+  }
 
   async function startCamera() {
     setError(null);
-    setIsLoading(true);
+    setIsInitializing(true);
     
     try {
       // Check if mediaDevices is supported
@@ -46,51 +46,69 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
         throw new Error("Camera.notSupported");
       }
 
-      // iOS Safari requires facingMode and specific constraints
+      // Show camera UI immediately
+      setShowCamera(true);
+
+      // Request camera access
       const constraints = {
         video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          facingMode: "environment",
         },
         audio: false,
       };
 
-      console.log("[Camera] Requesting camera access...");
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      console.log("[Camera] Stream obtained, tracks:", stream.getTracks().length);
       streamRef.current = stream;
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         
-        // Wait for video to be ready before showing camera UI
-        videoRef.current.onloadedmetadata = () => {
-          console.log("[Camera] Video metadata loaded");
-          videoRef.current?.play().then(() => {
-            console.log("[Camera] Video playing");
-            setShowCamera(true);
-            setIsLoading(false);
-          }).catch((err) => {
-            console.error("[Camera] Error playing video:", err);
-            setError("Camera.playError");
-            stopCamera();
-          });
-        };
-
-        // Fallback timeout in case loadedmetadata doesn't fire
-        setTimeout(() => {
-          if (!showCamera && streamRef.current) {
-            console.log("[Camera] Fallback: forcing show camera");
-            setShowCamera(true);
-            setIsLoading(false);
+        // Wait for video to be ready
+        await new Promise<void>((resolve, reject) => {
+          if (!videoRef.current) {
+            reject(new Error("Video element not found"));
+            return;
           }
-        }, 1000);
+
+          // If video is already ready, resolve immediately
+          if (videoRef.current.readyState >= 2) {
+            resolve();
+            return;
+          }
+
+          // Otherwise wait for it to be ready
+          const onLoaded = () => {
+            videoRef.current?.removeEventListener("loadeddata", onLoaded);
+            resolve();
+          };
+
+          const onError = () => {
+            videoRef.current?.removeEventListener("error", onError);
+            reject(new Error("Camera.playError"));
+          };
+
+          videoRef.current.addEventListener("loadeddata", onLoaded);
+          videoRef.current.addEventListener("error", onError);
+
+          // Timeout after 5 seconds
+          setTimeout(() => {
+            videoRef.current?.removeEventListener("loadeddata", onLoaded);
+            videoRef.current?.removeEventListener("error", onError);
+            reject(new Error("Camera.timeout"));
+          }, 5000);
+        });
+
+        // Start playing
+        await videoRef.current.play();
       }
+      
+      setIsInitializing(false);
     } catch (err: any) {
       console.error("[Camera] Error:", err);
-      setIsLoading(false);
+      setIsInitializing(false);
+      
+      // Close camera UI on error
+      setShowCamera(false);
       
       // Handle specific iOS errors
       if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
@@ -101,6 +119,8 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
         setError("Camera.inUse");
       } else if (err.message === "Camera.notSupported") {
         setError("Camera.notSupported");
+      } else if (err.message === "Camera.playError" || err.message === "Camera.timeout") {
+        setError("Camera.unavailable");
       } else {
         setError("Camera.unavailable");
       }
@@ -163,11 +183,18 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
         <button
           type="button"
           onClick={startCamera}
-          disabled={isAnalyzing || isLoading}
+          disabled={isAnalyzing || isInitializing}
           className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-soft-green text-soft-green font-semibold hover:bg-soft-green/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <Camera size={20} />
-          {isLoading ? t("Common.loading") : t("Camera.takePhoto")}
+          {isInitializing ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              {t("Common.loading")}
+            </>
+          ) : (
+            t("Camera.takePhoto")
+          )}
         </button>
 
         <label className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-soft-green text-soft-green font-semibold hover:bg-soft-green/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer">
@@ -214,27 +241,39 @@ export function CameraUploader({ onImageCapture, isAnalyzing }: CameraUploaderPr
       {showCamera && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
           <div className="w-full max-w-lg p-4">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full rounded-2xl"
-              style={{ transform: "scaleX(-1)" }}
-            />
+            <div className="relative">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full rounded-2xl bg-black"
+              />
+              
+              {isInitializing && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 rounded-2xl">
+                  <Loader2 size={40} className="animate-spin text-white mb-2" />
+                  <p className="text-white text-sm">{t("Common.loading")}</p>
+                </div>
+              )}
+            </div>
+            
             <canvas ref={canvasRef} className="hidden" />
+            
             <div className="flex gap-3 justify-center mt-4">
               <button
                 type="button"
                 onClick={stopCamera}
-                className="flex items-center gap-2 px-6 py-3 rounded-full bg-white text-gray-800 font-semibold hover:bg-gray-100"
+                disabled={isInitializing}
+                className="flex items-center gap-2 px-6 py-3 rounded-full bg-white text-gray-800 font-semibold hover:bg-gray-100 disabled:opacity-50"
               >
                 {t("Camera.cancel")}
               </button>
               <button
                 type="button"
                 onClick={capturePhoto}
-                className="flex items-center gap-2 px-6 py-3 rounded-full bg-soft-green text-white font-semibold hover:bg-soft-green-hover"
+                disabled={isInitializing}
+                className="flex items-center gap-2 px-6 py-3 rounded-full bg-soft-green text-white font-semibold hover:bg-soft-green-hover disabled:opacity-50"
               >
                 <Camera size={20} />
                 {t("Camera.capture")}
