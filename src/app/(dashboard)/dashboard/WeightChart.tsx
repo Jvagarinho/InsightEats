@@ -74,7 +74,7 @@ export function WeightChart({ days }: WeightChartProps) {
   }));
 
   return (
-    <div className="w-full h-72 space-y-4">
+    <div className="w-full space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-4 text-sm">
         <div className="flex items-baseline gap-1">
           <span className="text-gray-500">{t("Dashboard.rangeStart")}:</span>
@@ -115,7 +115,8 @@ export function WeightChart({ days }: WeightChartProps) {
           </span>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height="100%">
+      <div className="h-56">
+        <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
           margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
@@ -162,6 +163,7 @@ export function WeightChart({ days }: WeightChartProps) {
           />
         </LineChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }

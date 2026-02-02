@@ -25,16 +25,18 @@ const sampleFoods = [
 // Sample weight history (last 30 days)
 function generateWeightHistory(userId: Id<"users">) {
   const weights = [];
-  const baseWeight = 75;
+  const startWeight = 80; // Starting weight 80kg
+  const targetWeight = 73; // Target after 30 days 73kg (7kg loss)
   const today = new Date();
   
   for (let i = 29; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
     // Gradual weight loss trend with some variation
-    const trend = i * 0.05; // Losing about 0.05kg per day
-    const randomVariation = (Math.random() - 0.5) * 0.5;
-    const weight = baseWeight - trend + randomVariation;
+    const progress = (29 - i) / 29; // 0 to 1 progress
+    const trend = progress * (startWeight - targetWeight);
+    const randomVariation = (Math.random() - 0.5) * 0.4;
+    const weight = startWeight - trend + randomVariation;
     
     weights.push({
       userId,
