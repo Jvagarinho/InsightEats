@@ -17,9 +17,9 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   
-  --color-soft-green: var(--soft-green);
-  --color-soft-green-hover: var(--soft-green-hover);
-  --color-light-gray: var(--light-gray);
+  --color-soft-green: #2D5A27;
+  --color-soft-green-hover: #23471f;
+  --color-light-gray: #F9FAFB;
 }
 
 body {
