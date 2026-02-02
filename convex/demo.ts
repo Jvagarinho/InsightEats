@@ -123,16 +123,23 @@ function generateDailyLogs(userId: Id<"users">, foodIds: Id<"foods">[]) {
 export const generateDemoData = mutation({
   args: {},
   handler: async (ctx) => {
+    console.log("[Demo] Starting demo data generation...");
+    
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
+      console.error("[Demo] No authenticated user found");
       throw new Error("Not authenticated");
     }
+    
+    console.log("[Demo] User authenticated:", identity.subject);
 
     // Get or create user
     let user = await ctx.db
       .query("users")
       .withIndex("by_clerkUserId", (q) => q.eq("clerkUserId", identity.subject))
       .unique();
+    
+    console.log("[Demo] Existing user:", user ? "found" : "not found");
 
     let userId: Id<"users">;
     

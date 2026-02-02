@@ -14,15 +14,18 @@ export function DemoModeToggle() {
   async function handleGenerateDemo() {
     setIsLoading(true);
     try {
+      console.log("Generating demo data...");
       const result = await generateDemoData();
+      console.log("Demo data generated:", result);
       toast.success(
         `Demo mode activated! Added ${result.foodsAdded} foods, ${result.dailyLogsAdded} meal logs, and ${result.weightLogsAdded} weight entries.`
       );
       // Reload page to show new data
       window.location.reload();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Demo mode error:", error);
-      toast.error("Failed to generate demo data. Please try again.");
+      const errorMessage = error?.message || "Unknown error";
+      toast.error(`Failed to generate demo data: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
