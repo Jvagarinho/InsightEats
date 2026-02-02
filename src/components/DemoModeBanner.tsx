@@ -28,7 +28,7 @@ export function DemoModeBanner() {
         <div className="flex items-center gap-2 text-yellow-800">
           <AlertTriangle size={18} />
           <span className="text-sm font-medium">
-            Demo Mode Active: {demoStatus.foodCount} foods, {demoStatus.logCount} logs, {demoStatus.weightLogCount} weight entries
+            Demo Mode Active: {demoStatus.logCount} meal logs, {demoStatus.weightLogCount} weight entries
           </span>
         </div>
         <button

@@ -302,7 +302,7 @@ export const checkDemoStatus = query({
       return { hasDemoData: false };
     }
 
-    // Check if user has any data
+    // Check if user has any data (logs or weight logs)
     const logs = await ctx.db
       .query("logs")
       .withIndex("by_user_date", (q) => q.eq("userId", user._id))
@@ -313,15 +313,14 @@ export const checkDemoStatus = query({
       .withIndex("by_user", (q) => q.eq("userId", user._id))
       .collect();
 
-    const allFoods = await ctx.db.query("foods").collect();
-
+    // Count only user's specific data, not global foods
     const hasDemoData = logs.length > 0 || weightLogs.length > 0;
 
     return {
       hasDemoData,
       logCount: logs.length,
       weightLogCount: weightLogs.length,
-      foodCount: allFoods.length,
+      foodCount: 0, // Don't show food count as it's global
     };
   },
 });
