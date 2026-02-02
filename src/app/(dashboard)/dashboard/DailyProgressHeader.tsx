@@ -40,13 +40,15 @@ export function DailyProgressHeader() {
   );
 
   const goals = useQuery(api.goals.getGoals);
-  const summary =
-    useQuery(api.logs.summaryForDate, { date: selectedDate }) ?? {
-      calories: 0,
-      protein: 0,
-      carbs: 0,
-      fat: 0,
-    };
+  const summaryQuery = useQuery(api.logs.summaryForDate, { date: selectedDate });
+  
+  // Handle loading and error states
+  const summary = summaryQuery ?? {
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+  };
 
   const caloriesGoal = goals?.caloriesTarget ?? 0;
   const caloriesConsumed = summary.calories ?? 0;

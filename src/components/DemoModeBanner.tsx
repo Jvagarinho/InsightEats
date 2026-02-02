@@ -7,9 +7,18 @@ import { useState } from "react";
 
 export function DemoModeBanner() {
   const [isDismissed, setIsDismissed] = useState(false);
-  const demoStatus = useQuery(api.demo.checkDemoStatus);
+  
+  // Safely handle the query - it might be undefined during loading
+  let demoStatus;
+  try {
+    demoStatus = useQuery(api.demo.checkDemoStatus);
+  } catch (error) {
+    console.error("DemoModeBanner query error:", error);
+    return null;
+  }
 
-  if (isDismissed || !demoStatus?.hasDemoData) {
+  // Don't render if still loading, dismissed, or no demo data
+  if (!demoStatus || isDismissed || !demoStatus.hasDemoData) {
     return null;
   }
 
