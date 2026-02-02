@@ -9,7 +9,6 @@ interface AnalyzedFood {
   estimatedCarbsPer100g: number;
   estimatedFatPer100g: number;
   confidenceScore: number;
-  imageUrl?: string;
 }
 
 interface AnalysisResponse {
@@ -132,42 +131,6 @@ async function getUSDAFoodData(foodName: string): Promise<{ calories: number; pr
   }
 }
 
-// Function to get food image from Unsplash
-async function getFoodImage(foodName: string): Promise<string | undefined> {
-  try {
-    // Use Unsplash Source API (free, no key required for basic usage)
-    // Search for food-related images
-    const searchQuery = encodeURIComponent(`${foodName} food`);
-    
-    // Fetch from Unsplash API
-    const response = await fetch(
-      `https://api.unsplash.com/search/photos?query=${searchQuery}&per_page=1&orientation=squarish`,
-      {
-        headers: {
-          'Authorization': `Client-ID ${process.env.UNSPLASH_ACCESS_KEY || ''}`
-        }
-      }
-    );
-
-    if (!response.ok) {
-      // Fallback: return a placeholder image URL
-      return `https://source.unsplash.com/300x300/?${searchQuery}`;
-    }
-
-    const data = await response.json();
-    if (data.results && data.results.length > 0) {
-      return data.results[0].urls.small;
-    }
-    
-    // Fallback if no results
-    return `https://source.unsplash.com/300x300/?${searchQuery}`;
-  } catch (error) {
-    console.error(`[Unsplash] Error fetching image for ${foodName}:`, error);
-    // Return a generic food placeholder
-    return `https://source.unsplash.com/300x300/?food`;
-  }
-}
-
 // Function to analyze image using Hugging Face BLIP
 async function analyzeWithHuggingFace(imageBase64: string): Promise<string> {
   const apiToken = process.env.HF_API_TOKEN;
@@ -283,19 +246,10 @@ async function analyzeWithHuggingFace(imageBase64: string): Promise<string> {
       }
     }
 
-    // Fetch images for each food item
-    console.log("[Unsplash] Fetching images for", foods.length, "foods...");
-    const foodsWithImages = await Promise.all(
-      foods.map(async (food) => {
-        const imageUrl = await getFoodImage(food.name);
-        return { ...food, imageUrl };
-      })
-    );
-
-    console.log("[Hugging Face + USDA] Total foods found with real data:", foodsWithImages.length);
+    console.log("[Hugging Face + USDA] Total foods found with real data:", foods.length);
 
     return JSON.stringify({
-      foods: foodsWithImages,
+      foods,
       summary: caption
     });
   } catch (error) {
@@ -372,20 +326,11 @@ async function analyzeWithGoogleVision(imageBase64: string): Promise<string> {
     }
   }
 
-  // Fetch images for each food item
-  console.log("[Unsplash] Fetching images for", foods.length, "foods...");
-  const foodsWithImages = await Promise.all(
-    foods.map(async (food) => {
-      const imageUrl = await getFoodImage(food.name);
-      return { ...food, imageUrl };
-    })
-  );
-
-  console.log("[Google Vision] Total foods found with images:", foodsWithImages.length);
+  console.log("[Google Vision] Total foods found:", foods.length);
 
   return JSON.stringify({
-    foods: foodsWithImages,
-    summary: `Identified ${foodsWithImages.length} food items using Google Vision`
+    foods,
+    summary: `Identified ${foods.length} food items using Google Vision`
   });
 }
 

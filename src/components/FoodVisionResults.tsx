@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Utensils, Plus, ImageOff } from "lucide-react";
+import { Utensils, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "./LanguageProvider";
 import clsx from "clsx";
@@ -18,7 +18,6 @@ export interface AnalyzedFood {
   estimatedCarbsPer100g: number;
   estimatedFatPer100g: number;
   confidence: "high" | "medium" | "low";
-  imageUrl?: string;
 }
 
 type FoodVisionResultsProps = {
@@ -117,27 +116,6 @@ export function FoodVisionResults({ foods, summary, onClose }: FoodVisionResults
             className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-shadow"
           >
             <div className="flex gap-4">
-              {/* Food Image */}
-              <div className="flex-shrink-0">
-                {food.imageUrl ? (
-                  <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
-                    <img
-                      src={food.imageUrl}
-                      alt={food.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Hide image on error
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div className="w-24 h-24 rounded-lg bg-gray-100 flex items-center justify-center">
-                    <ImageOff size={32} className="text-gray-300" />
-                  </div>
-                )}
-              </div>
-
               {/* Food Details */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
@@ -211,25 +189,12 @@ export function FoodVisionResults({ foods, summary, onClose }: FoodVisionResults
           </DialogHeader>
           {selectedFood && (
             <div className="space-y-4">
-              <div className="flex gap-4">
-                {selectedFood.imageUrl && (
-                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                    <img
-                      src={selectedFood.imageUrl}
-                      alt={selectedFood.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="flex-1">
-                  <div className="font-semibold text-gray-800">{selectedFood.name}</div>
-                  <div className="text-sm text-gray-500">
-                    {Math.round(selectedFood.estimatedCaloriesPer100g)} kcal · {" "}
-                    {selectedFood.estimatedProteinPer100g.toFixed(1)}g P · {" "}
-                    {selectedFood.estimatedCarbsPer100g.toFixed(1)}g C · {" "}
-                    {selectedFood.estimatedFatPer100g.toFixed(1)}g F per 100g
-                  </div>
-                </div>
+              <div className="font-semibold text-gray-800">{selectedFood.name}</div>
+              <div className="text-sm text-gray-500">
+                {Math.round(selectedFood.estimatedCaloriesPer100g)} kcal · {" "}
+                {selectedFood.estimatedProteinPer100g.toFixed(1)}g P · {" "}
+                {selectedFood.estimatedCarbsPer100g.toFixed(1)}g C · {" "}
+                {selectedFood.estimatedFatPer100g.toFixed(1)}g F per 100g
               </div>
 
               <div className="space-y-2">
