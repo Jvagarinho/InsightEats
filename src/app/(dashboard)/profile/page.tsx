@@ -9,6 +9,7 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { Sex, ActivityLevel, type ProfileForm } from "@/types";
 import { profileFormSchema } from "@/lib/validations";
 import { z } from "zod";
+import { DemoModeToggle } from "@/components/DemoModeToggle";
 
 export default function ProfilePage() {
   const { user } = useUser();
@@ -233,6 +234,11 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Demo Mode</h3>
+        <DemoModeToggle />
       </div>
     </div>
   );
