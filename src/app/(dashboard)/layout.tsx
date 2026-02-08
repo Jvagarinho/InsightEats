@@ -17,7 +17,7 @@ export default function DashboardLayout({
         </main>
       </div>
       <MobileNavigation />
-      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 text-center text-xs text-gray-500 z-40">
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4 text-center text-xs text-gray-500 z-40">
         © {new Date().getFullYear()} IterioTech. All rights reserved.{" | "}
         <a href="https://iteriotech.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
           iteriotech.com
