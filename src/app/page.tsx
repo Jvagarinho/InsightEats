@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import {
   SignInButton,
   SignUpButton,
@@ -17,7 +16,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white flex flex-col items-center justify-center text-center px-4">
       <div className="max-w-3xl space-y-8">
         <div className="flex justify-center">
-          <Image src="/logo.png" alt="InsightEats Logo" width={120} height={120} className="mb-4" />
+          <img src="/logo.png" alt="InsightEats Logo" width={120} height={120} className="mb-4 object-contain" />
         </div>
         <h1 className="text-5xl font-extrabold text-soft-green tracking-tight">
           {t("Landing.title")}
